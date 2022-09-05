@@ -8,7 +8,6 @@ const CONSTS = {
     y: 225,
   },
   spacer: 50,
-  difficulty: 'easy',
 }
 
 
@@ -310,8 +309,8 @@ const piles = {
       y: 0,
     },
     offset: {
-      x: 1.5,
-      y: 1.5,
+      x: .5,
+      y: .5,
     },
   },
   discardPile: {
@@ -321,7 +320,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 5,
+      y: 25,
     }
   },
   pile1: {
@@ -413,6 +412,9 @@ const initialState = {
   foundationD: [],
   foundationC: [],
   foundationS: [],
+  settings: {
+    difficulty: 'easy',
+  }
 }
 
 function cardMapInit(initialState) {
@@ -420,7 +422,6 @@ function cardMapInit(initialState) {
 
   // shufflecards
   const shuffledDeck = shuffle(initialState.cards);
-  console.log(shuffledDeck);
 
   // put all cards in the deck
   for (const cardName of shuffledDeck) {
@@ -451,8 +452,6 @@ function cardMapInit(initialState) {
 }
 
 function cardMapReducer(state, action) {
-  let newState = { ...state };
-
   switch (action.type) {
     case 'move':
       const cardName = action.card;
@@ -472,14 +471,42 @@ function cardMapReducer(state, action) {
         cardMap,
       };
     case 'deal':
-      console.log('deal');
-      const newDeck = state.deck.slice(0, -1);
-      const discardedCards = state.deck.slice(-1);
-      let newCards = { ...state.cards };
-      for (const card in discardedCards) {
-        newCards = { ...newCards.cards, [card]: { ...newState.cards[card], face: 'up' } };
+      console.log('deck');
+      if (state.deck.length === 0) {    // deck empty
+        const newDeck = reverseDeck(state.discardPile);
+        let newCards = { ...state.cards };
+
+        // reverse all the cards in the deck
+        for (const card of newDeck) {
+          newCards = { ...newCards, [card]: { ...newCards[card], face: 'down' } };
+        }
+
+        // update card map
+        let newCardMap = { ...state.cardMap };
+        newDeck.forEach(card =>
+          newCardMap[card] = 'deck'
+        );
+
+        return {
+          ...state,
+          cards: newCards,
+          cardMap: newCardMap,
+          deck: newDeck,
+          discardPile: [],
+        }
+
       }
-      const newDiscardPile = [...state.discardPile, ...discardedCards];
+
+      let numCardsToDeal = Math.min(state.settings.difficulty === 'easy' ? 1 : 3, state.deck.length);
+      const newDeck = state.deck.slice(0, -numCardsToDeal);
+      const discardedCards = state.deck.slice(-numCardsToDeal);
+
+      let newCards = { ...state.cards };
+      for (const card of discardedCards) {
+        newCards = { ...newCards, [card]: { ...newCards[card], face: 'up' } };
+      }
+
+      const newDiscardPile = [...state.discardPile, ...reverseDeck(discardedCards)];
       let newCardMap = { ...state.cardMap };
       discardedCards.forEach(card => {
         newCardMap = { ...newCardMap, [card]: 'discardPile' };
@@ -492,6 +519,13 @@ function cardMapReducer(state, action) {
         deck: newDeck,
         discardPile: newDiscardPile,
       };
+    case 'turnOverNewCard': {
+      const newCards = {...state.cards, [action.cardName]: {...state.cards[action.cardName], face: 'up'}};
+      return {
+        ...state,
+        cards: newCards,
+      }
+    }
     default:
       console.log('invalid type in reducer');
   }
@@ -508,8 +542,7 @@ function App() {
     const name = e.target.id;
 
     // if deck is clicked deal cards
-    if (state.cardMap[name] === 'deck') {
-      console.log('deck clicked');
+    if (state.cardMap[name] === 'deck' || name === 'deck') {
       dispatcher({
         type: 'deal',
       });
@@ -526,6 +559,16 @@ function App() {
     let newSelection = null;
 
     if (!selection && isCard(name)) {
+      if (state.cards[name].face === 'down') {
+        const stackName = state.cardMap[name];
+        if (state[stackName].findIndex(i => i === name) === state[stackName].length - 1) {
+          dispatcher({
+            type: 'turnOverNewCard',
+            cardName: name,
+          });
+        }
+        return;
+      }
       newSelection = name;
     } else {
       if (selection) {
@@ -541,9 +584,9 @@ function App() {
     setSelection(newSelection);
   }
 
-  console.log(state);
+  // console.log(state);
 
-  const scaleFactor = (windowDimentions.width / 38) / CONSTS.spacer;
+  const scaleFactor = Math.min((windowDimentions.width / 38) / CONSTS.spacer, 1);
 
   return (
     <div className="App">
@@ -570,7 +613,14 @@ function App() {
         const stack = state.cardMap[cardName];
         const idx = state[stack].findIndex(element => element === cardName);
         const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
-        const positionY = (CONSTS.spacer + (idx * piles[stack].offset.y)) * scaleFactor;
+        
+        let positionY = 0;
+        if (stack === 'discardPile' && state[stack].length > 3) {
+          positionY = idx > state[stack].length - 4 ? (CONSTS.spacer + (3 - (state[stack].length - idx)) * piles[stack].offset.y) * scaleFactor :
+            CONSTS.spacer * scaleFactor;
+        } else {
+          positionY = (CONSTS.spacer + (idx * piles[stack].offset.y)) * scaleFactor;
+        }
 
         return (
           <div
@@ -612,6 +662,18 @@ function shuffle(cards) {
   }
 
   return deck;
+}
+
+function reverseDeck(deck) {
+  let reversedDeck = [];
+
+  let idx = deck.length - 1;
+  while (idx >= 0) {
+    reversedDeck.push(deck[idx]);
+    idx--;
+  }
+
+  return reversedDeck;
 }
 
 export default App;

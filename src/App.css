@@ -8,6 +8,7 @@
 
 .selectedCard {
   background-color: aqua;
+  filter: brightness(85%);
 }
 
 .stack {
@@ -18,6 +19,6 @@
 }
 
 .selectedPile {
-  background-color: blueviolet;
+  filter: brightness(85%);
 }
 

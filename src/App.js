@@ -1,5 +1,6 @@
 import './App.css';
 import { useReducer, useState } from 'react';
+import useWindowDimensions from './components/hooks/useWindowDimensions';
 
 const CONSTS = {
   cardDimensions: {
@@ -7,261 +8,321 @@ const CONSTS = {
     y: 225,
   },
   spacer: 50,
+  difficulty: 'easy',
 }
 
-const cards = {
+
+const InitailCards = {
   'h-1': {
     suit: 'h',
+    color: 'red',
     rank: 1,
-    face: 'up',
+    face: 'down',
   },
   'h-2': {
     suit: 'h',
+    color: 'red',
     rank: 2,
-    face: 'up',
+    face: 'down',
   },
   'h-3': {
     suit: 'h',
+    color: 'red',
     rank: 3,
-    face: 'up',
+    face: 'down',
   },
   'h-4': {
     suit: 'h',
+    color: 'red',
     rank: 4,
-    face: 'up',
+    face: 'down',
   },
   'h-5': {
     suit: 'h',
+    color: 'red',
     rank: 5,
-    face: 'up',
+    face: 'down',
   },
   'h-6': {
     suit: 'h',
+    color: 'red',
     rank: 6,
-    face: 'up',
+    face: 'down',
   },
   'h-7': {
     suit: 'h',
+    color: 'red',
     rank: 7,
-    face: 'up',
+    face: 'down',
   },
   'h-8': {
     suit: 'h',
+    color: 'red',
     rank: 8,
-    face: 'up',
+    face: 'down',
   },
   'h-9': {
     suit: 'h',
+    color: 'red',
     rank: 9,
-    face: 'up',
+    face: 'down',
   },
   'h-10': {
     suit: 'h',
+    color: 'red',
     rank: 10,
-    face: 'up',
+    face: 'down',
   },
   'h-11': {
     suit: 'h',
+    color: 'red',
     rank: 11,
-    face: 'up',
+    face: 'down',
   },
   'h-12': {
     suit: 'h',
+    color: 'red',
     rank: 12,
-    face: 'up',
+    face: 'down',
   },
   'd-1': {
     suit: 'd',
+    color: 'red',
     rank: 1,
-    face: 'up',
+    face: 'down',
   },
   'd-2': {
     suit: 'd',
+    color: 'red',
     rank: 2,
-    face: 'up',
+    face: 'down',
   },
   'd-3': {
     suit: 'd',
+    color: 'red',
     rank: 3,
-    face: 'up',
+    face: 'down',
   },
   'd-4': {
     suit: 'd',
+    color: 'red',
     rank: 4,
-    face: 'up',
+    face: 'down',
   },
   'd-5': {
     suit: 'd',
+    color: 'red',
     rank: 5,
-    face: 'up',
+    face: 'down',
   },
   'd-6': {
     suit: 'd',
+    color: 'red',
     rank: 6,
-    face: 'up',
+    face: 'down',
   },
   'd-7': {
     suit: 'd',
+    color: 'red',
     rank: 7,
-    face: 'up',
+    face: 'down',
   },
   'd-8': {
     suit: 'd',
+    color: 'red',
     rank: 8,
-    face: 'up',
+    face: 'down',
   },
   'd-9': {
     suit: 'd',
+    color: 'red',
     rank: 9,
-    face: 'up',
+    face: 'down',
   },
   'd-10': {
     suit: 'd',
+    color: 'red',
     rank: 10,
-    face: 'up',
+    face: 'down',
   },
   'd-11': {
     suit: 'd',
+    color: 'red',
     rank: 11,
-    face: 'up',
+    face: 'down',
   },
   'd-12': {
     suit: 'd',
+    color: 'red',
     rank: 12,
-    face: 'up',
+    face: 'down',
   },
   'c-1': {
     suit: 'c',
+    color: 'black',
     rank: 1,
-    face: 'up',
+    face: 'down',
   },
   'c-2': {
     suit: 'c',
+    color: 'black',
     rank: 2,
-    face: 'up',
+    face: 'down',
   },
   'c-3': {
     suit: 'c',
+    color: 'black',
     rank: 3,
-    face: 'up',
+    face: 'down',
   },
   'c-4': {
     suit: 'c',
+    color: 'black',
     rank: 4,
-    face: 'up',
+    face: 'down',
   },
   'c-5': {
     suit: 'c',
+    color: 'black',
     rank: 5,
-    face: 'up',
+    face: 'down',
   },
   'c-6': {
     suit: 'c',
+    color: 'black',
     rank: 6,
-    face: 'up',
+    face: 'down',
   },
   'c-7': {
     suit: 'c',
+    color: 'black',
     rank: 7,
-    face: 'up',
+    face: 'down',
   },
   'c-8': {
     suit: 'c',
+    color: 'black',
     rank: 8,
-    face: 'up',
+    face: 'down',
   },
   'c-9': {
     suit: 'c',
+    color: 'black',
     rank: 9,
-    face: 'up',
+    face: 'down',
   },
   'c-10': {
     suit: 'c',
+    color: 'black',
     rank: 10,
-    face: 'up',
+    face: 'down',
   },
   'c-11': {
     suit: 'c',
+    color: 'black',
     rank: 11,
-    face: 'up',
+    face: 'down',
   },
   'c-12': {
     suit: 'c',
+    color: 'black',
     rank: 12,
-    face: 'up',
+    face: 'down',
   },
   's-1': {
     suit: 's',
+    color: 'black',
     rank: 1,
-    face: 'up',
+    face: 'down',
   },
   's-2': {
     suit: 's',
+    color: 'black',
     rank: 2,
-    face: 'up',
+    face: 'down',
   },
   's-3': {
     suit: 's',
+    color: 'black',
     rank: 3,
-    face: 'up',
+    face: 'down',
   },
   's-4': {
     suit: 's',
+    color: 'black',
     rank: 4,
-    face: 'up',
+    face: 'down',
   },
   's-5': {
     suit: 's',
+    color: 'black',
     rank: 5,
-    face: 'up',
+    face: 'down',
   },
   's-6': {
     suit: 's',
+    color: 'black',
     rank: 6,
-    face: 'up',
+    face: 'down',
   },
   's-7': {
     suit: 's',
+    color: 'black',
     rank: 7,
-    face: 'up',
+    face: 'down',
   },
   's-8': {
     suit: 's',
+    color: 'black',
     rank: 8,
-    face: 'up',
+    face: 'down',
   },
   's-9': {
     suit: 's',
+    color: 'black',
     rank: 9,
-    face: 'up',
+    face: 'down',
   },
   's-10': {
     suit: 's',
+    color: 'black',
     rank: 10,
-    face: 'up',
+    face: 'down',
   },
   's-11': {
     suit: 's',
+    color: 'black',
     rank: 11,
-    face: 'up',
+    face: 'down',
   },
   's-12': {
     suit: 's',
+    color: 'black',
     rank: 12,
-    face: 'up',
+    face: 'down',
   },
 };
 
-const stacks = {
+const piles = {
   deck: {
     base: {
       x: 0,
       y: 0,
     },
     offset: {
+      x: 1.5,
+      y: 1.5,
+    },
+  },
+  discardPile: {
+    base: {
+      x: 5,
+      y: 0,
+    },
+    offset: {
       x: 0,
       y: 5,
-    },
+    }
   },
   pile1: {
     base: {
@@ -337,8 +398,10 @@ const stacks = {
 }
 
 const initialState = {
+  cards: InitailCards,
   cardMap: {},
   deck: [],
+  discardPile: [],
   pile1: [],
   pile2: [],
   pile3: [],
@@ -346,21 +409,27 @@ const initialState = {
   pile5: [],
   pile6: [],
   pile7: [],
+  foundationH: [],
+  foundationD: [],
+  foundationC: [],
+  foundationS: [],
 }
 
 function cardMapInit(initialState) {
-  let newState = {...initialState};
+  let newState = { ...initialState };
 
   // shufflecards
+  const shuffledDeck = shuffle(initialState.cards);
+  console.log(shuffledDeck);
 
   // put all cards in the deck
-  for (const cardName in cards) {
-    newState = {...newState, cardMap: {...newState.cardMap, [cardName]: 'deck' }};
-    newState = {...newState, deck: [...newState.deck, cardName]};
+  for (const cardName of shuffledDeck) {
+    newState = { ...newState, cardMap: { ...newState.cardMap, [cardName]: 'deck' } };
   }
+  newState = { ...newState, deck: [...shuffledDeck] };
 
   // deal the cards from deck
-  const pileKeys = Object.keys(newState).slice(2);
+  const pileKeys = Object.keys(newState).slice(4, 11);
 
   let idx1 = 0;
   let idx2 = pileKeys.length;
@@ -368,8 +437,11 @@ function cardMapInit(initialState) {
     for (let i = idx1; i < idx2; i++) {
       const cardName = newState.deck.pop();
       const pileName = pileKeys[i];
-      newState = {...newState, [pileName]: [...newState[pileName], cardName]};
-      newState = {...newState, cardMap: {...newState.cardMap, [cardName]: pileName}};
+      newState = { ...newState, [pileName]: [...newState[pileName], cardName] };
+      newState = { ...newState, cardMap: { ...newState.cardMap, [cardName]: pileName } };
+      if (i === idx1) {
+        newState = { ...newState, cards: { ...newState.cards, [cardName]: { ...newState.cards[cardName], face: 'up' } } };
+      }
     }
 
     idx1++;
@@ -379,7 +451,7 @@ function cardMapInit(initialState) {
 }
 
 function cardMapReducer(state, action) {
-  let newState = {...state};
+  let newState = { ...state };
 
   switch (action.type) {
     case 'move':
@@ -390,17 +462,36 @@ function cardMapReducer(state, action) {
       const fromArray = state[from].filter(i => i !== cardName);
       const toArray = [...state[to], cardName];
 
-      const cardMap = {...state.cardMap};
+      const cardMap = { ...state.cardMap };
       cardMap[cardName] = to;
 
-      newState = {
-        ...newState,
+      return {
+        ...state,
         [from]: fromArray,
         [to]: toArray,
         cardMap,
       };
+    case 'deal':
+      console.log('deal');
+      const newDeck = state.deck.slice(0, -1);
+      const discardedCards = state.deck.slice(-1);
+      let newCards = { ...state.cards };
+      for (const card in discardedCards) {
+        newCards = { ...newCards.cards, [card]: { ...newState.cards[card], face: 'up' } };
+      }
+      const newDiscardPile = [...state.discardPile, ...discardedCards];
+      let newCardMap = { ...state.cardMap };
+      discardedCards.forEach(card => {
+        newCardMap = { ...newCardMap, [card]: 'discardPile' };
+      });
 
-      return newState;
+      return {
+        ...state,
+        cards: newCards,
+        cardMap: newCardMap,
+        deck: newDeck,
+        discardPile: newDiscardPile,
+      };
     default:
       console.log('invalid type in reducer');
   }
@@ -411,12 +502,23 @@ function cardMapReducer(state, action) {
 function App() {
   const [state, dispatcher] = useReducer(cardMapReducer, initialState, cardMapInit);
   const [selection, setSelection] = useState(null);
+  const { windowDimentions } = useWindowDimensions();
 
   function onSelect(e) {
     const name = e.target.id;
 
+    // if deck is clicked deal cards
+    if (state.cardMap[name] === 'deck') {
+      console.log('deck clicked');
+      dispatcher({
+        type: 'deal',
+      });
+      setSelection(null);
+      return;
+    }
+
     // if clicked card is selected deselect it
-    if (selection == name) {
+    if (selection === name) {
       setSelection(null);
       return;
     }
@@ -439,13 +541,15 @@ function App() {
     setSelection(newSelection);
   }
 
-  // console.log(state);
+  console.log(state);
+
+  const scaleFactor = (windowDimentions.width / 38) / CONSTS.spacer;
 
   return (
     <div className="App">
-      {Object.keys(stacks).map((key) => {
-        const positionX = CONSTS.spacer + stacks[key].base.x * CONSTS.spacer;
-        const positionY = CONSTS.spacer;
+      {Object.keys(piles).map((key) => {
+        const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
+        const positionY = (CONSTS.spacer + piles[key].base.y * CONSTS.spacer) * scaleFactor;
 
         return (
           <div
@@ -454,19 +558,19 @@ function App() {
             className={`stack ${selection === key ? "selectedPile" : ""}`}
             onClick={(e) => onSelect(e)}
             style={{
-              width: CONSTS.cardDimensions.x,
-              height: CONSTS.cardDimensions.y,
+              width: CONSTS.cardDimensions.x * scaleFactor,
+              height: CONSTS.cardDimensions.y * scaleFactor,
               left: `${positionX}px`,
               top: `${positionY}px`,
             }}
           >{key}</div>
         )
       })}
-      {Object.keys(cards).map((cardName) => {
+      {Object.keys(state.cards).map((cardName) => {
         const stack = state.cardMap[cardName];
-        const positionX = CONSTS.spacer + (CONSTS.spacer * stacks[stack].base.x);
         const idx = state[stack].findIndex(element => element === cardName);
-        const positionY = CONSTS.spacer + (idx * stacks[stack].offset.y);
+        const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
+        const positionY = (CONSTS.spacer + (idx * piles[stack].offset.y)) * scaleFactor;
 
         return (
           <div
@@ -475,13 +579,14 @@ function App() {
             className={`card ${selection === cardName ? 'selectedCard' : ''}`}
             onClick={(e) => onSelect(e)}
             style={{
-              width: `${CONSTS.cardDimensions.x}px`,
-              height: `${CONSTS.cardDimensions.y}px`,
+              width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
+              height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
               left: `${positionX}px`,
               top: `${positionY}px`,
-              zIndex: `${idx}`
+              zIndex: `${idx}`,
+              backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`
             }}>
-            {cardName + " " + cards[cardName].face}
+            {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face}
           </div>
         )
       })}
@@ -491,6 +596,22 @@ function App() {
 
 function isCard(name) {
   return name[1] === '-';
+}
+
+function shuffle(cards) {
+  let deck = Object.keys(cards);
+  const numCards = deck.length;
+
+  for (let i = 0; i < numCards; i++) {
+    const idx1 = Math.floor(Math.random() * numCards);
+    const idx2 = Math.floor(Math.random() * numCards);
+
+    const temp = deck[idx1];
+    deck[idx1] = deck[idx2];
+    deck[idx2] = temp;
+  }
+
+  return deck;
 }
 
 export default App;

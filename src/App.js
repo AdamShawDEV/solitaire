@@ -320,7 +320,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     }
   },
   pile1: {
@@ -330,7 +330,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile2: {
@@ -340,7 +340,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile3: {
@@ -350,7 +350,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile4: {
@@ -360,7 +360,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile5: {
@@ -370,7 +370,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile6: {
@@ -380,7 +380,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
   pile7: {
@@ -390,7 +390,7 @@ const piles = {
     },
     offset: {
       x: 0,
-      y: 25,
+      y: 45,
     },
   },
 
@@ -634,9 +634,11 @@ function App() {
               left: `${positionX}px`,
               top: `${positionY}px`,
               zIndex: `${idx}`,
-              backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`
+              backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
+              backgroundImage: `url(${state.cards[cardName].face === 'up' ? './images/card-template.svg' : './images/card-back.svg'})`,
+              backgroundSize: `100%`,
             }}>
-            {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face}
+            {/* {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face} */}
           </div>
         )
       })}

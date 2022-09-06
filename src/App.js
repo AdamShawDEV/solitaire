@@ -644,7 +644,7 @@ function App() {
               top: `${positionY}px`,
               zIndex: `${idx}`,
               backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
-              backgroundImage: `url(${state.cards[cardName].face === 'up' ? './images/card-template.svg' : './images/card-back.svg'})`,
+              backgroundImage: `url(${state.cards[cardName].face === 'up' ? `./images/h-${state.cards[cardName].rank}.svg` : './images/card-back.svg'})`,
               backgroundSize: `100%`,
               borderRadius: `${10 * scaleFactor}px`,
             }}>

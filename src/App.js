@@ -455,20 +455,44 @@ function cardMapInit(initialState) {
 function cardMapReducer(state, action) {
   switch (action.type) {
     case 'move':
-      const cardName = action.card;
-      const from = state.cardMap[cardName];
+      const selectedCard = action.card;
+      const from = state.cardMap[selectedCard];
       const to = isCard(action.destination) ? state.cardMap[action.destination] : action.destination;
 
       // if is legal move
-      if ((state[to].length === 0 && state.cards[cardName].value === 12) || 
-      (state.cards[state[to].at(-1)].rank === state.cards[cardName].rank + 1 &&
-      state.cards[state[to].at(-1)].color !== state.cards[cardName].color)) {
+      if (state[to].length === 0) {
+        if (state.cards[selectedCard].rank === 12) {
+          const selectedCardIdx = state[from].findIndex(card => card === selectedCard);
+          const cardsToMove = state[from].slice(selectedCardIdx);
 
-        const fromArray = state[from].filter(i => i !== cardName);
-        const toArray = [...state[to], cardName];
+          const fromArray = state[from].filter(card => !cardsToMove.includes(card));
+          const toArray = [...state[to], ...cardsToMove];
+          let cardMap = { ...state.cardMap };
 
-        const cardMap = { ...state.cardMap };
-        cardMap[cardName] = to;
+          cardsToMove.forEach(card =>
+            cardMap = { ...cardMap, [card]: to }
+          )
+
+          return {
+            ...state,
+            [from]: fromArray,
+            [to]: toArray,
+            cardMap,
+          };
+        }
+      } else if ((state.cards[state[to].at(-1)].rank === state.cards[selectedCard].rank + 1 &&
+        state.cards[state[to].at(-1)].color !== state.cards[selectedCard].color)) {
+
+        const selectedCardIdx = state[from].findIndex(card => card === selectedCard);
+        const cardsToMove = state[from].slice(selectedCardIdx);
+
+        const fromArray = state[from].filter(card => !cardsToMove.includes(card));
+        const toArray = [...state[to], ...cardsToMove];
+        let cardMap = { ...state.cardMap };
+
+        cardsToMove.forEach(card =>
+          cardMap = { ...cardMap, [card]: to }
+        )
 
         return {
           ...state,
@@ -648,11 +672,10 @@ function App() {
               top: `${positionY}px`,
               zIndex: `${idx}`,
               backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
-              backgroundImage: `url(${state.cards[cardName].face === 'up' ? `./images/h-${state.cards[cardName].rank}.svg` : './images/card-back.svg'})`,
+              backgroundImage: `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : './images/card-back.svg'})`,
               backgroundSize: `100%`,
               borderRadius: `${10 * scaleFactor}px`,
             }}>
-            {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face}
           </div>
         )
       })}

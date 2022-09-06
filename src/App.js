@@ -462,7 +462,7 @@ function cardMapReducer(state, action) {
       // if is legal move
       if ((state[to].length === 0 && state.cards[cardName].value === 12) || 
       (state.cards[state[to].at(-1)].rank === state.cards[cardName].rank + 1 &&
-      state.cards[state[to].at(-1)].color !== state.cards[cardName].color - 1)) {
+      state.cards[state[to].at(-1)].color !== state.cards[cardName].color)) {
 
         const fromArray = state[from].filter(i => i !== cardName);
         const toArray = [...state[to], cardName];
@@ -575,6 +575,10 @@ function App() {
             cardName: name,
           });
         }
+        return;
+      } else if (state.cardMap[name] === 'discardPile') {
+        console.log('hi');
+        setSelection(state.discardPile.at(-1));
         return;
       }
       newSelection = name;

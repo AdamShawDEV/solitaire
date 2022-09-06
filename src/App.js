@@ -8,6 +8,7 @@ const CONSTS = {
     y: 225,
   },
   spacer: 50,
+  moveSpeed: 1,
 }
 
 
@@ -458,18 +459,25 @@ function cardMapReducer(state, action) {
       const from = state.cardMap[cardName];
       const to = isCard(action.destination) ? state.cardMap[action.destination] : action.destination;
 
-      const fromArray = state[from].filter(i => i !== cardName);
-      const toArray = [...state[to], cardName];
+      // if is legal move
+      if ((state[to].length === 0 && state.cards[cardName].value === 12) || 
+      (state.cards[state[to].at(-1)].rank === state.cards[cardName].rank + 1 &&
+      state.cards[state[to].at(-1)].color !== state.cards[cardName].color - 1)) {
 
-      const cardMap = { ...state.cardMap };
-      cardMap[cardName] = to;
+        const fromArray = state[from].filter(i => i !== cardName);
+        const toArray = [...state[to], cardName];
 
-      return {
-        ...state,
-        [from]: fromArray,
-        [to]: toArray,
-        cardMap,
-      };
+        const cardMap = { ...state.cardMap };
+        cardMap[cardName] = to;
+
+        return {
+          ...state,
+          [from]: fromArray,
+          [to]: toArray,
+          cardMap,
+        };
+      }
+      break;
     case 'deal':
       console.log('deck');
       if (state.deck.length === 0) {    // deck empty
@@ -520,7 +528,7 @@ function cardMapReducer(state, action) {
         discardPile: newDiscardPile,
       };
     case 'turnOverNewCard': {
-      const newCards = {...state.cards, [action.cardName]: {...state.cards[action.cardName], face: 'up'}};
+      const newCards = { ...state.cards, [action.cardName]: { ...state.cards[action.cardName], face: 'up' } };
       return {
         ...state,
         cards: newCards,
@@ -605,6 +613,7 @@ function App() {
               height: CONSTS.cardDimensions.y * scaleFactor,
               left: `${positionX}px`,
               top: `${positionY}px`,
+              borderRadius: `${10 * scaleFactor}px`,
             }}
           >{key}</div>
         )
@@ -613,7 +622,7 @@ function App() {
         const stack = state.cardMap[cardName];
         const idx = state[stack].findIndex(element => element === cardName);
         const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
-        
+
         let positionY = 0;
         if (stack === 'discardPile' && state[stack].length > 3) {
           positionY = idx > state[stack].length - 4 ? (CONSTS.spacer + (3 - (state[stack].length - idx)) * piles[stack].offset.y) * scaleFactor :
@@ -637,8 +646,9 @@ function App() {
               backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
               backgroundImage: `url(${state.cards[cardName].face === 'up' ? './images/card-template.svg' : './images/card-back.svg'})`,
               backgroundSize: `100%`,
+              borderRadius: `${10 * scaleFactor}px`,
             }}>
-            {/* {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face} */}
+            {state.cards[cardName].face === 'up' && cardName + " " + state.cards[cardName].face}
           </div>
         )
       })}

@@ -11,7 +11,6 @@ html, body, #root {
 .card {
   position: absolute;
   background-color: red;
-  border-radius: 10px;
   border: solid 1px black;
   transition: top 1s, left 1s;
 }

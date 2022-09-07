@@ -25,8 +25,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="2.9540685"
-     inkscape:cx="143.02309"
-     inkscape:cy="111.37182"
+     inkscape:cx="114.58773"
+     inkscape:cy="84.29053"
      inkscape:window-width="2560"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -68,7 +68,7 @@
          id="tspan61"
          x="0.78330177"
          y="10.605688"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';text-align:start;text-anchor:start;fill:#000000;stroke-width:1.06508">K</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';text-align:start;text-anchor:start;fill:#000000;stroke-width:1.06508">Q</tspan></text>
     <g
        id="g699">
       <path
@@ -96,5 +96,16 @@
          id="path552-5-4"
          sodipodi:nodetypes="cscsscscccc" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:3.175px;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';fill:#000000;stroke-width:0.264583"
+       x="-19.97316"
+       y="41.648071"
+       id="text867"><tspan
+         sodipodi:role="line"
+         id="tspan865"
+         style="stroke-width:0.264583"
+         x="-19.97316"
+         y="41.648071">t</tspan></text>
   </g>
 </svg>

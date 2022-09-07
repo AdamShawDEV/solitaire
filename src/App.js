@@ -85,6 +85,12 @@ const InitailCards = {
     rank: 12,
     face: 'down',
   },
+  'h-13': {
+    suit: 'h',
+    color: 'red',
+    rank: 13,
+    face: 'down',
+  },
   'd-1': {
     suit: 'd',
     color: 'red',
@@ -155,6 +161,12 @@ const InitailCards = {
     suit: 'd',
     color: 'red',
     rank: 12,
+    face: 'down',
+  },
+  'd-13': {
+    suit: 'd',
+    color: 'red',
+    rank: 13,
     face: 'down',
   },
   'c-1': {
@@ -229,6 +241,12 @@ const InitailCards = {
     rank: 12,
     face: 'down',
   },
+  'c-13': {
+    suit: 'c',
+    color: 'black',
+    rank: 13,
+    face: 'down',
+  },
   's-1': {
     suit: 's',
     color: 'black',
@@ -299,6 +317,12 @@ const InitailCards = {
     suit: 's',
     color: 'black',
     rank: 12,
+    face: 'down',
+  },
+  's-13': {
+    suit: 's',
+    color: 'black',
+    rank: 13,
     face: 'down',
   },
 };
@@ -673,7 +697,7 @@ function App() {
     setSelection(newSelection);
   }
 
-  const scaleFactor = Math.min((windowDimentions.width / 38) / CONSTS.spacer, 1);
+  const scaleFactor = Math.min((windowDimentions.width / 29) / CONSTS.spacer, 1);
 
   return (
     <div className="App">

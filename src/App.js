@@ -326,8 +326,8 @@ const piles = {
   },
   pile1: {
     base: {
-      x: 9,
-      y: 0,
+      x: 0,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -336,8 +336,8 @@ const piles = {
   },
   pile2: {
     base: {
-      x: 13,
-      y: 0,
+      x: 4,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -346,8 +346,8 @@ const piles = {
   },
   pile3: {
     base: {
-      x: 17,
-      y: 0,
+      x: 8,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -356,8 +356,8 @@ const piles = {
   },
   pile4: {
     base: {
-      x: 21,
-      y: 0,
+      x: 12,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -366,8 +366,8 @@ const piles = {
   },
   pile5: {
     base: {
-      x: 25,
-      y: 0,
+      x: 16,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -376,8 +376,8 @@ const piles = {
   },
   pile6: {
     base: {
-      x: 29,
-      y: 0,
+      x: 20,
+      y: 5.5,
     },
     offset: {
       x: 0,
@@ -386,14 +386,54 @@ const piles = {
   },
   pile7: {
     base: {
-      x: 33,
-      y: 0,
+      x: 24,
+      y: 5.5,
     },
     offset: {
       x: 0,
       y: 45,
     },
   },
+  foundationH: {
+    base: {
+      x: 12,
+      y: 0,
+    },
+    offset: {
+      x: 0,
+      y: 0,
+    },
+  },
+  foundationD: {
+    base: {
+      x: 16,
+      y: 0,
+    },
+    offset: {
+      x: 0,
+      y: 0,
+    },
+  },
+  foundationS: {
+    base: {
+      x: 20,
+      y: 0,
+    },
+    offset: {
+      x: 0,
+      y: 0,
+    },
+  },
+  foundationC: {
+    base: {
+      x: 24,
+      y: 0,
+    },
+    offset: {
+      x: 0,
+      y: 0,
+    },
+  }
 
 }
 
@@ -587,7 +627,7 @@ function App() {
 
       if (isPile(destination)) {
         if (state[destination].length === 0) {
-          if (state.cards[card].rank === 12 && isPile(destination)) {
+          if (state.cards[card].rank === 12) {
             dispatcher({
               type: 'move',
               card,
@@ -595,8 +635,8 @@ function App() {
               destination,
             });
           }
-        } else if ((state.cards[state[destination].at(-1)].rank === state.cards[card].rank + 1 &&
-          state.cards[state[destination].at(-1)].color !== state.cards[card].color)) {
+        } else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank + 1 &&
+          state.cards[state[destination].at(-1)].color !== state.cards[card].color) {
           dispatcher({
             type: 'move',
             card,
@@ -606,6 +646,25 @@ function App() {
         }
       } else if (isFoundation(destination)) {
         console.log('destination is a foundation');
+        if (state[destination].length === 0) {
+          if (state.cards[card].rank === 1) {
+            dispatcher({
+              type: 'move',
+              card,
+              origin,
+              destination,
+            });
+          }
+        } else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank - 1 &&
+          state.cards[state[destination].at(-1)].suit === state.cards[card].suit) {
+          dispatcher({
+            type: 'move',
+            card,
+            origin,
+            destination,
+          });
+        }
+
       }
 
       newSelection = null;
@@ -648,7 +707,7 @@ function App() {
           positionY = idx > state[stack].length - 4 ? (CONSTS.spacer + (3 - (state[stack].length - idx)) * piles[stack].offset.y) * scaleFactor :
             CONSTS.spacer * scaleFactor;
         } else {
-          positionY = (CONSTS.spacer + (idx * piles[stack].offset.y)) * scaleFactor;
+          positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
         }
 
         return (

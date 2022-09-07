@@ -316,7 +316,7 @@ const piles = {
   },
   discardPile: {
     base: {
-      x: 5,
+      x: 4,
       y: 0,
     },
     offset: {
@@ -455,55 +455,27 @@ function cardMapInit(initialState) {
 function cardMapReducer(state, action) {
   switch (action.type) {
     case 'move':
-      const selectedCard = action.card;
-      const from = state.cardMap[selectedCard];
-      const to = isCard(action.destination) ? state.cardMap[action.destination] : action.destination;
+      const { card: selectedCard, origin, destination } = action;
 
-      // if is legal move
-      if (state[to].length === 0) {
-        if (state.cards[selectedCard].rank === 12) {
-          const selectedCardIdx = state[from].findIndex(card => card === selectedCard);
-          const cardsToMove = state[from].slice(selectedCardIdx);
+      const selectedCardIdx = state[origin].findIndex(card => card === selectedCard);
+      const cardsToMove = state[origin].slice(selectedCardIdx);
 
-          const fromArray = state[from].filter(card => !cardsToMove.includes(card));
-          const toArray = [...state[to], ...cardsToMove];
-          let cardMap = { ...state.cardMap };
+      const fromArray = state[origin].filter(card => !cardsToMove.includes(card));
+      const toArray = [...state[destination], ...cardsToMove];
+      let cardMap = { ...state.cardMap };
 
-          cardsToMove.forEach(card =>
-            cardMap = { ...cardMap, [card]: to }
-          )
+      cardsToMove.forEach(card =>
+        cardMap = { ...cardMap, [card]: destination }
+      )
 
-          return {
-            ...state,
-            [from]: fromArray,
-            [to]: toArray,
-            cardMap,
-          };
-        }
-      } else if ((state.cards[state[to].at(-1)].rank === state.cards[selectedCard].rank + 1 &&
-        state.cards[state[to].at(-1)].color !== state.cards[selectedCard].color)) {
+      return {
+        ...state,
+        [origin]: fromArray,
+        [destination]: toArray,
+        cardMap,
+      };
 
-        const selectedCardIdx = state[from].findIndex(card => card === selectedCard);
-        const cardsToMove = state[from].slice(selectedCardIdx);
-
-        const fromArray = state[from].filter(card => !cardsToMove.includes(card));
-        const toArray = [...state[to], ...cardsToMove];
-        let cardMap = { ...state.cardMap };
-
-        cardsToMove.forEach(card =>
-          cardMap = { ...cardMap, [card]: to }
-        )
-
-        return {
-          ...state,
-          [from]: fromArray,
-          [to]: toArray,
-          cardMap,
-        };
-      }
-      break;
     case 'deal':
-      console.log('deck');
       if (state.deck.length === 0) {    // deck empty
         const newDeck = reverseDeck(state.discardPile);
         let newCards = { ...state.cards };
@@ -606,21 +578,41 @@ function App() {
         return;
       }
       newSelection = name;
-    } else {
-      if (selection) {
-        dispatcher({
-          type: 'move',
-          card: selection,
-          destination: name,
-        });
-        newSelection = null;
+    } else if (selection) {
+      // check if leagal move
+      console.log('tomove');
+      const card = selection;
+      const origin = state.cardMap[selection];
+      const destination = isCard(name) ? state.cardMap[name] : name;
+
+      if (isPile(destination)) {
+        if (state[destination].length === 0) {
+          if (state.cards[card].rank === 12 && isPile(destination)) {
+            dispatcher({
+              type: 'move',
+              card,
+              origin,
+              destination,
+            });
+          }
+        } else if ((state.cards[state[destination].at(-1)].rank === state.cards[card].rank + 1 &&
+          state.cards[state[destination].at(-1)].color !== state.cards[card].color)) {
+          dispatcher({
+            type: 'move',
+            card,
+            origin,
+            destination,
+          });
+        }
+      } else if (isFoundation(destination)) {
+        console.log('destination is a foundation');
       }
+
+      newSelection = null;
     }
 
     setSelection(newSelection);
   }
-
-  // console.log(state);
 
   const scaleFactor = Math.min((windowDimentions.width / 38) / CONSTS.spacer, 1);
 
@@ -685,6 +677,14 @@ function App() {
 
 function isCard(name) {
   return name[1] === '-';
+}
+
+function isPile(name) {
+  return name.slice(0, 4) === 'pile';
+}
+
+function isFoundation(name) {
+  return name.slice(0, 4) === 'foun';
 }
 
 function shuffle(cards) {

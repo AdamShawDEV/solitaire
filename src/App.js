@@ -478,7 +478,7 @@ const initialState = {
   foundationC: [],
   foundationS: [],
   settings: {
-    difficulty: 'hard',
+    difficulty: 'easy',
   },
   undoIdx: -1,
   undoArray: [],
@@ -823,7 +823,6 @@ function App() {
         const stack = state.cardMap[cardName];
         const idx = state[stack].findIndex(element => element === cardName);
         const positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
-        //const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
 
         let positionX = 0;
         if (stack === 'discardPile' && state[stack].length > 3) {

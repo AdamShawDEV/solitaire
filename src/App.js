@@ -479,7 +479,10 @@ const initialState = {
   foundationS: [],
   settings: {
     difficulty: 'easy',
-  }
+  },
+  undoIdx: -1,
+  undoArray: [],
+
 }
 
 function cardMapInit(initialState) {
@@ -519,7 +522,7 @@ function cardMapInit(initialState) {
 function cardMapReducer(state, action) {
   switch (action.type) {
     case 'move':
-      const { card: selectedCard, origin, destination } = action;
+      const { card: selectedCard, origin, destination, isUndo } = action;
 
       const selectedCardIdx = state[origin].findIndex(card => card === selectedCard);
       const cardsToMove = state[origin].slice(selectedCardIdx);
@@ -537,6 +540,8 @@ function cardMapReducer(state, action) {
         [origin]: fromArray,
         [destination]: toArray,
         cardMap,
+        undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
+        undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'move', origin, destination, card: selectedCard }],
       };
 
     case 'deal':
@@ -587,13 +592,23 @@ function cardMapReducer(state, action) {
         deck: newDeck,
         discardPile: newDiscardPile,
       };
-    case 'turnOverNewCard': {
-      const newCards = { ...state.cards, [action.cardName]: { ...state.cards[action.cardName], face: 'up' } };
+    case 'turnOverCard': {
+      const { cardName, isUndo } = action;
+      const newFace = state.cards[cardName].face === 'up' ? 'down' : 'up';
+      const newCards = { ...state.cards, [cardName]: { ...state.cards[cardName], face: newFace } };
       return {
         ...state,
         cards: newCards,
+        undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
+        undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'turnOverCard', cardName,}],
       }
     }
+    case 'decrementUndo':
+      return {
+        ...state,
+        undoArray: state.undoArray.slice(0, -1),
+        undoIdx: state.undoIdx - 1,
+      };
     default:
       console.log('invalid type in reducer');
   }
@@ -605,6 +620,25 @@ function App() {
   const [state, dispatcher] = useReducer(cardMapReducer, initialState, cardMapInit);
   const [selection, setSelection] = useState(null);
   const { windowDimentions } = useWindowDimensions();
+
+  function undo() {
+    if (state.undoIdx < 0) return;
+
+    switch (state.undoArray[state.undoIdx].type) {
+      case 'move':
+        const { card, origin, destination } = state.undoArray[state.undoIdx];
+        dispatcher({ type: 'move', card, origin: destination, destination: origin, isUndo: true });
+        break;
+      case 'turnOverCard':
+        const { cardName } =  state.undoArray[state.undoIdx];
+        dispatcher({ type: 'turnOverCard', cardName, isUndo: true });
+        break;
+      default:
+        console.log('invalid type in undo')
+    }
+
+    dispatcher({ type: 'decrementUndo' });
+  }
 
   function onSelect(e) {
     const name = e.target.id;
@@ -631,13 +665,12 @@ function App() {
         const stackName = state.cardMap[name];
         if (state[stackName].findIndex(i => i === name) === state[stackName].length - 1) {
           dispatcher({
-            type: 'turnOverNewCard',
+            type: 'turnOverCard',
             cardName: name,
           });
         }
         return;
       } else if (state.cardMap[name] === 'discardPile') {
-        console.log('hi');
         setSelection(state.discardPile.at(-1));
         return;
       }
@@ -651,7 +684,7 @@ function App() {
 
       if (isPile(destination)) {
         if (state[destination].length === 0) {
-          if (state.cards[card].rank === 12) {
+          if (state.cards[card].rank === 13) {
             dispatcher({
               type: 'move',
               card,
@@ -669,7 +702,6 @@ function App() {
           });
         }
       } else if (isFoundation(destination)) {
-        console.log('destination is a foundation');
         if (state[destination].length === 0) {
           if (state.cards[card].rank === 1) {
             dispatcher({
@@ -701,6 +733,7 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={undo} disabled={state.undoIdx === -1}>undo</button>
       {Object.keys(piles).map((key) => {
         const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
         const positionY = (CONSTS.spacer + piles[key].base.y * CONSTS.spacer) * scaleFactor;

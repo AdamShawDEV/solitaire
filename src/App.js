@@ -344,8 +344,8 @@ const piles = {
       y: 0,
     },
     offset: {
-      x: 0,
-      y: 45,
+      x: 45,
+      y: 0,
     }
   },
   pile1: {
@@ -478,7 +478,7 @@ const initialState = {
   foundationC: [],
   foundationS: [],
   settings: {
-    difficulty: 'easy',
+    difficulty: 'hard',
   },
   undoIdx: -1,
   undoArray: [],
@@ -546,6 +546,7 @@ function cardMapReducer(state, action) {
 
     case 'deal':
       if (state.deck.length === 0) {    // deck empty
+        console.log('deckempty');
         const newDeck = reverseDeck(state.discardPile);
         let newCards = { ...state.cards };
 
@@ -566,11 +567,13 @@ function cardMapReducer(state, action) {
           cardMap: newCardMap,
           deck: newDeck,
           discardPile: [],
+          undoIdx: state.undoIdx + 1,
+          undoArray: [...state.undoArray, { type: 'deal', actionTaken: 'deckReverse' }],
         }
 
       }
 
-      let numCardsToDeal = Math.min(state.settings.difficulty === 'easy' ? 1 : 3, state.deck.length);
+      const numCardsToDeal = Math.min(state.settings.difficulty === 'easy' ? 1 : 3, state.deck.length);
       const newDeck = state.deck.slice(0, -numCardsToDeal);
       const discardedCards = state.deck.slice(-numCardsToDeal);
 
@@ -591,6 +594,8 @@ function cardMapReducer(state, action) {
         cardMap: newCardMap,
         deck: newDeck,
         discardPile: newDiscardPile,
+        undoIdx: state.undoIdx + 1,
+        undoArray: [...state.undoArray, { type: 'deal', actionTaken: 'cardsDelt', numCardsDealt: numCardsToDeal }],
       };
     case 'turnOverCard': {
       const { cardName, isUndo } = action;
@@ -600,9 +605,65 @@ function cardMapReducer(state, action) {
         ...state,
         cards: newCards,
         undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
-        undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'turnOverCard', cardName,}],
+        undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'turnOverCard', cardName, }],
       }
     }
+    case 'unDeal':
+      {
+        const { actionTaken, numCardsDealt } = action;
+
+        if (actionTaken === 'deckReverse') {
+          const discardPile = reverseDeck(state.deck);
+          let newCards = { ...state.cards };
+
+          // reverse all the cards in the discardPile
+          for (const card of discardPile) {
+            newCards = { ...newCards, [card]: { ...newCards[card], face: 'up' } };
+          }
+
+          // update card map
+          let newCardMap = { ...state.cardMap };
+          discardPile.forEach(card =>
+            newCardMap[card] = 'discardPile'
+          );
+
+          return {
+            ...state,
+            cards: newCards,
+            cardMap: newCardMap,
+            deck: [],
+            discardPile,
+          }
+        } else if (actionTaken === 'cardsDelt') {
+          console.log('cardsDelt', numCardsDealt);
+          const discardPile = state.discardPile.slice(0, -numCardsDealt);
+          const returnedCards = state.discardPile.slice(-numCardsDealt);
+          console.log(returnedCards);
+
+          let cards = { ...state.cards };
+          for (const card of returnedCards) {
+            cards = { ...cards, [card]: { ...cards[card], face: 'down' } };
+          }
+
+          const deck = [...state.deck, ...reverseDeck(returnedCards)];
+
+          let cardMap = { ...state.cardMap };
+
+          returnedCards.forEach(card => {
+            cardMap = { ...cardMap, [card]: 'deck' }
+          });
+
+          return {
+            ...state,
+            cards,
+            cardMap,
+            deck,
+            discardPile,
+          };
+
+        }
+      }
+      break;
     case 'decrementUndo':
       return {
         ...state,
@@ -630,8 +691,12 @@ function App() {
         dispatcher({ type: 'move', card, origin: destination, destination: origin, isUndo: true });
         break;
       case 'turnOverCard':
-        const { cardName } =  state.undoArray[state.undoIdx];
+        const { cardName } = state.undoArray[state.undoIdx];
         dispatcher({ type: 'turnOverCard', cardName, isUndo: true });
+        break;
+      case 'deal':
+        const { actionTaken, numCardsDealt } = state.undoArray[state.undoIdx]
+        dispatcher({ type: 'unDeal', actionTaken, numCardsDealt });
         break;
       default:
         console.log('invalid type in undo')
@@ -757,14 +822,15 @@ function App() {
       {Object.keys(state.cards).map((cardName) => {
         const stack = state.cardMap[cardName];
         const idx = state[stack].findIndex(element => element === cardName);
-        const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
+        const positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
+        //const positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
 
-        let positionY = 0;
+        let positionX = 0;
         if (stack === 'discardPile' && state[stack].length > 3) {
-          positionY = idx > state[stack].length - 4 ? (CONSTS.spacer + (3 - (state[stack].length - idx)) * piles[stack].offset.y) * scaleFactor :
-            CONSTS.spacer * scaleFactor;
+          positionX = idx > state[stack].length - 4 ? (CONSTS.spacer + CONSTS.spacer * piles[stack].base.x + (3 - (state[stack].length - idx)) * piles[stack].offset.x) * scaleFactor :
+          CONSTS.spacer + CONSTS.spacer * piles[stack].base.x * scaleFactor;
         } else {
-          positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
+          positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
         }
 
         return (

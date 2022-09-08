@@ -1,5 +1,5 @@
 import './App.css';
-import Solitair from './components/Solitair';
+import Solitaire from './components/Solitaire';
 import { useState } from 'react';
 
 
@@ -8,7 +8,7 @@ function App() {
   
   return (
     <div className="App">
-      <Solitair key={gameKey} startNewGame={() => setGameKey(curr => curr + 1)} />
+      <Solitaire key={gameKey} startNewGame={() => setGameKey(curr => curr + 1)} />
     </div>
   );
 }

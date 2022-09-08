@@ -25,7 +25,7 @@ function Card({ id, selected, onSelect, positionX, positionY, style }) {
     )
 }
 
-function Solitair({ startNewGame }) {
+function Solitaire({ startNewGame }) {
     const { state, dispatcher } = useGameState();
     const [selection, setSelection] = useState(null);
     const { windowDimentions } = useWindowDimensions();
@@ -219,4 +219,4 @@ function isFoundation(name) {
     return name.slice(0, 4) === 'foun';
 }
 
-export default Solitair;
+export default Solitaire;

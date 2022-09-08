@@ -36,7 +36,7 @@ function Header({ startNewGame, undo, undoDisabled, state, dispatcher }) {
     <>
       <header className={styles.header} >
         <div>
-          <span className={styles.title} >Solitair</span>
+          <span className={styles.title} >Solitaire</span>
           <button onClick={startNewGame}>new game</button>
           <button onClick={undo} disabled={undoDisabled}>undo</button>
         </div>

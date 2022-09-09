@@ -10,6 +10,7 @@ const CONSTS = {
     maxHeight: 1125,
     moveDuration: 1,
     numCards: 52,
+    dealCardsDelay: 2000,
 }
 
 const piles = {

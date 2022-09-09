@@ -49,26 +49,26 @@
   color: #acacac;
 }
 
-.settingsForm {
+.modal {
   padding: .4rem;
 }
 
-.settingsForm>form {
+.modal > form {
   display: flex;
   flex-direction: column;
 }
 
-.settingsForm label, .checkboxContainer {
+.modal label, .checkboxContainer {
   margin-top: .7rem;
   margin-bottom: .4rem;
 }
 
-.settingsForm h1 {
+.modal h1 {
   text-align: center;
   margin: 0;
 }
 
-.settingsForm select {
+.modal select {
   padding: .4rem;
   background-color: rgb(177, 191, 255);
   border: none;
@@ -76,7 +76,13 @@
   font-weight: 700;
 }
 
-.settingsForm button {
+.modal div {
+  display: flex;
+  margin: 0 auto;
+}
+
+.modal button {
+  flex-grow: 1;
   margin-top: .7rem;
   padding: .7rem;
   background-color: rgb(108, 135, 255);
@@ -85,14 +91,14 @@
   font-weight: 700;
 }
 
-.settingsForm button:hover {
+.modal button:hover {
   background-color: rgb(146, 166, 255);
 }
 
-.settingsForm button:active {
+.modal button:active {
   background-color: rgb(46, 84, 255);
 }
 
-.settingsForm button:nth-of-type(2) {
+.modal button:nth-of-type(2) {
   margin-left: 1rem;
 }

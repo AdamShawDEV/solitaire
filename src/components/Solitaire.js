@@ -7,7 +7,6 @@ import Header from './Header';
 function Card({ id, selected, onSelect, positionX, positionY, style }) {
     const [isMoving, setIsMoving] = useState(false);
 
-
     useEffect(() => {
         setIsMoving(true);
         const timerId = setTimeout(() => setIsMoving(false), CONSTS.moveDuration * 1000);
@@ -25,16 +24,16 @@ function Card({ id, selected, onSelect, positionX, positionY, style }) {
     )
 }
 
-function Solitaire({ startNewGame }) {
+function Solitaire() {
     const { state, dispatcher } = useGameState();
     const [selection, setSelection] = useState(null);
     const { windowDimentions } = useWindowDimensions();
     const [scaleFactor, setScaleFactor] = useState(
         Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
+    const [playEnabled, setPlayEnabled] = useState(true);
 
     useEffect(() => {
         setScaleFactor(Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
-
     }, [windowDimentions]);
 
     function undo() {
@@ -57,10 +56,12 @@ function Solitaire({ startNewGame }) {
                 console.log('invalid type in undo')
         }
 
+        setSelection(null);
         dispatcher({ type: 'decrementUndo' });
     }
 
     function onSelect(e) {
+        if (!playEnabled) return;
         const name = e.target.id;
 
         // if deck is clicked deal cards
@@ -80,7 +81,6 @@ function Solitaire({ startNewGame }) {
 
         // no card card is selected set clicked card as selected
         if (!selection && isCard(name)) {
-
             if (state.cards[name].face === 'down') {
                 const stackName = state.cardMap[name];
                 if (state[stackName].findIndex(i => i === name) === state[stackName].length - 1) {
@@ -121,28 +121,15 @@ function Solitaire({ startNewGame }) {
                         destination,
                     });
                 }
-            } else if (isFoundation(destination) && 
-            piles[destination].suit === state.cards[card].suit &&
-            state.cards[card].rank === state[destination].length + 1) {
-                // if (state[destination].length === 0) {
-                //     if (state.cards[card].rank === 1) {
-                        dispatcher({
-                            type: 'move',
-                            card,
-                            origin,
-                            destination,
-                        });
-                //     }
-                // }
-                // else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank - 1 &&
-                //     state.cards[state[destination].at(-1)].suit === state.cards[card].suit) {
-                //     dispatcher({
-                //         type: 'move',
-                //         card,
-                //         origin,
-                //         destination,
-                //     });
-                // }
+            } else if (isFoundation(destination) &&
+                piles[destination].suit === state.cards[card].suit &&
+                state.cards[card].rank === state[destination].length + 1) {
+                dispatcher({
+                    type: 'move',
+                    card,
+                    origin,
+                    destination,
+                });
             }
 
             setSelection(null);
@@ -151,7 +138,8 @@ function Solitaire({ startNewGame }) {
 
     return (
         <>
-            <Header startNewGame={startNewGame}
+            <Header
+                setPlayEnabled={setPlayEnabled}
                 undo={undo}
                 undoDisabled={state.undoIdx < 0}
                 state={state} dispatcher={dispatcher} />
@@ -165,8 +153,6 @@ function Solitaire({ startNewGame }) {
                             isPile(key) ? 'pile' :
                                 key === 'deck' ? 'deck' :
                                     'discardPile';
-
-                    console.log(bgImage);
 
                     return (
                         <div

@@ -78,7 +78,7 @@ function Solitaire({ startNewGame }) {
             return;
         }
 
-        // no card card is selected set cliced card as selected
+        // no card card is selected set clicked card as selected
         if (!selection && isCard(name)) {
 
             if (state.cards[name].face === 'down') {
@@ -121,7 +121,7 @@ function Solitaire({ startNewGame }) {
                         destination,
                     });
                 }
-            } else if (isFoundation(destination)) {
+            } else if (isFoundation(destination) && piles[destination].suit === state.cards[card].suit) {
                 if (state[destination].length === 0) {
                     if (state.cards[card].rank === 1) {
                         dispatcher({
@@ -157,6 +157,14 @@ function Solitaire({ startNewGame }) {
                     const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
                     const positionY = (CONSTS.spacer + piles[key].base.y * CONSTS.spacer) * scaleFactor;
 
+                    const bgImage =
+                        isFoundation(key) ? `foundation-${piles[key].suit}` :
+                            isPile(key) ? 'pile' :
+                                key === 'deck' ? 'deck' :
+                                    'discardPile';
+
+                    console.log(bgImage);
+
                     return (
                         <div
                             key={key}
@@ -169,6 +177,8 @@ function Solitaire({ startNewGame }) {
                                 left: `${positionX}px`,
                                 top: `${positionY}px`,
                                 borderRadius: `${10 * scaleFactor}px`,
+                                backgroundImage: `url('./images/${bgImage}.svg')`,
+                                backgroundSize: '100%',
                             }}
                         ></div>
                     )

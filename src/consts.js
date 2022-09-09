@@ -104,6 +104,7 @@ const piles = {
         },
     },
     foundationH: {
+        suit: 'h',
         base: {
             x: 12,
             y: 0,
@@ -114,6 +115,7 @@ const piles = {
         },
     },
     foundationD: {
+        suit: 'd',
         base: {
             x: 16,
             y: 0,
@@ -124,6 +126,7 @@ const piles = {
         },
     },
     foundationS: {
+        suit: 's',
         base: {
             x: 20,
             y: 0,
@@ -134,6 +137,7 @@ const piles = {
         },
     },
     foundationC: {
+        suit: 'c',
         base: {
             x: 24,
             y: 0,

@@ -121,25 +121,28 @@ function Solitaire({ startNewGame }) {
                         destination,
                     });
                 }
-            } else if (isFoundation(destination) && piles[destination].suit === state.cards[card].suit) {
-                if (state[destination].length === 0) {
-                    if (state.cards[card].rank === 1) {
+            } else if (isFoundation(destination) && 
+            piles[destination].suit === state.cards[card].suit &&
+            state.cards[card].rank === state[destination].length + 1) {
+                // if (state[destination].length === 0) {
+                //     if (state.cards[card].rank === 1) {
                         dispatcher({
                             type: 'move',
                             card,
                             origin,
                             destination,
                         });
-                    }
-                } else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank - 1 &&
-                    state.cards[state[destination].at(-1)].suit === state.cards[card].suit) {
-                    dispatcher({
-                        type: 'move',
-                        card,
-                        origin,
-                        destination,
-                    });
-                }
+                //     }
+                // }
+                // else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank - 1 &&
+                //     state.cards[state[destination].at(-1)].suit === state.cards[card].suit) {
+                //     dispatcher({
+                //         type: 'move',
+                //         card,
+                //         origin,
+                //         destination,
+                //     });
+                // }
             }
 
             setSelection(null);

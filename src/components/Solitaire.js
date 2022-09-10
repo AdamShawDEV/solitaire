@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import useWindowDimensions from './hooks/useWindowDimensions';
 import useGameState from './hooks/useGameState';
-import { CONSTS, piles } from '../consts';
+import { CONSTS, GAME_STATE, piles } from '../consts';
 import Header from './Header';
+import Modal from './Modal';
+import styles from './modules/Solitaire.module.css';
 
 function Card({ id, selected, onSelect, positionX, positionY, style }) {
     const [isMoving, setIsMoving] = useState(false);
@@ -19,7 +21,7 @@ function Card({ id, selected, onSelect, positionX, positionY, style }) {
             id={id}
             className={`card ${selected ? 'selectedCard' : ''}`}
             onClick={(e) => onSelect(e)}
-            style={isMoving ? { ...style, zIndex: style.zIndex + CONSTS.numCards } : style}>
+            style={isMoving ? { ...style, zIndex: Number.parseInt(style.zIndex) + CONSTS.numCards } : style}>
         </div>
     )
 }
@@ -35,6 +37,14 @@ function Solitaire() {
     useEffect(() => {
         setScaleFactor(Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
     }, [windowDimentions]);
+
+    async function startNewGame() {
+        setPlayEnabled(false);
+        dispatcher({ type: 'stackCards' });
+        await new Promise(result => setTimeout(result, CONSTS.dealCardsDelay));
+        dispatcher({ type: 'dealCards' });
+        setPlayEnabled(true);
+    }
 
     function undo() {
         if (state.undoIdx < 0) return;
@@ -62,10 +72,10 @@ function Solitaire() {
 
     function onSelect(e) {
         if (!playEnabled) return;
-        const name = e.target.id;
+        const clickedItem = e.target.id;
 
         // if deck is clicked deal cards
-        if (state.cardMap[name] === 'deck' || name === 'deck') {
+        if (state.cardMap[clickedItem] === 'deck' || clickedItem === 'deck') {
             dispatcher({
                 type: 'deal',
             });
@@ -74,33 +84,33 @@ function Solitaire() {
         }
 
         // if clicked card is already selected deselect it
-        if (selection === name) {
+        if (selection === clickedItem) {
             setSelection(null);
             return;
         }
 
-        // no card card is selected set clicked card as selected
-        if (!selection && isCard(name)) {
-            if (state.cards[name].face === 'down') {
-                const stackName = state.cardMap[name];
-                if (state[stackName].findIndex(i => i === name) === state[stackName].length - 1) {
+        // no card card is selected
+        if (!selection && isCard(clickedItem)) {
+            if (state.cards[clickedItem].face === 'down') {
+                const stackName = state.cardMap[clickedItem];
+                if (state[stackName].findIndex(i => i === clickedItem) === state[stackName].length - 1) {
                     dispatcher({
                         type: 'turnOverCard',
-                        cardName: name,
+                        cardName: clickedItem,
                     });
                 }
                 return;
-            } else if (state.cardMap[name] === 'discardPile') {
+            } else if (state.cardMap[clickedItem] === 'discardPile') {
                 setSelection(state.discardPile.at(-1));
                 return;
             }
-            setSelection(name);
+            setSelection(clickedItem);
             return;
         } else if (selection) {
             // check if legal move
             const card = selection;
             const origin = state.cardMap[selection];
-            const destination = isCard(name) ? state.cardMap[name] : name;
+            const destination = isCard(clickedItem) ? state.cardMap[clickedItem] : clickedItem;
 
             if (isPile(destination)) {
                 if (state[destination].length === 0) {
@@ -132,6 +142,7 @@ function Solitaire() {
                 });
             }
 
+            dispatcher({ type: 'checkGameState' });
             setSelection(null);
         }
     }
@@ -142,7 +153,8 @@ function Solitaire() {
                 setPlayEnabled={setPlayEnabled}
                 undo={undo}
                 undoDisabled={state.undoIdx < 0}
-                state={state} dispatcher={dispatcher} />
+                state={state} dispatcher={dispatcher}
+                startNewGame={startNewGame} />
             <div className='game' style={{ width: `${CONSTS.maxWidth * scaleFactor}px`, height: `${CONSTS.maxHeight * scaleFactor}px` }}>
                 {Object.keys(piles).map((key) => {
                     const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
@@ -200,6 +212,16 @@ function Solitaire() {
                     )
                 })}
             </div>
+            {state.gameState === GAME_STATE.WON && <Modal>
+                <div className={styles.gameWonModal}>
+                    <h1>Well Done!</h1>
+                    <h2>points: {state.points}</h2>
+                    <h2>moves: {state.numMoves}</h2>
+                    <h2>games played: {state.statistics.gamesPlayed}</h2>
+                    <h2>highScore: {state.statistics.highScore}</h2>
+                    <button onClick={startNewGame}>new game</button>
+                </div>
+            </Modal>}
         </>
     );
 

@@ -151,4 +151,9 @@ const piles = {
 
 };
 
-export { CONSTS, piles };
+const GAME_STATE = {
+    PLAYING: 'playing',
+    WON: 'gameWon',
+}
+
+export { CONSTS, piles, GAME_STATE };

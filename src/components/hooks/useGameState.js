@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { CONSTS, GAME_STATE } from "../../consts";
 
 const InitailCards = {
     'h-1': {
@@ -331,12 +332,20 @@ const initialState = {
     foundationD: [],
     foundationC: [],
     foundationS: [],
+    undoIdx: -1,
+    undoArray: [],
+    points: 0,
+    numMoves: 0,
+    gameState: GAME_STATE.PLAYING,
     settings: {
         difficulty: 'easy',
         cardBack: '',
     },
-    undoIdx: -1,
-    undoArray: [],
+    statistics: {
+        gamesPlayed: 0,
+        gamesWon: 0,
+        highScore: 0,
+    }
 };
 
 function cardMapInit(initialState) {
@@ -358,6 +367,20 @@ function cardMapReducer(state, action) {
     let newGameState = {};
 
     switch (action.type) {
+        case 'checkGameState':
+            const numCardsInFoundations = state.foundationH.length + state.foundationD.length + state.foundationC.length + state.foundationS.length;
+
+            if (numCardsInFoundations === CONSTS.numCards) {
+                const gamesPlayed = state.statistics.gamesPlayed + 1;
+                const highScore = state.points > state.statistics.highScore ? state.points : state.statistics.highScore
+                const gameState = GAME_STATE.WON;
+
+                newGameState = { ...state, gameState, statistics: { ...state.statistics, highScore, gamesPlayed } };
+            }
+            else {
+                newGameState = { ...state };
+            }
+            break;
         case 'stackCards':
             newGameState = returnCardsToDeck(state);
             break;
@@ -365,7 +388,7 @@ function cardMapReducer(state, action) {
             newGameState = dealCards(state);
             break;
         case 'startNewGame':
-            newGameState = createNewGameState(initialState, state.settings);
+            newGameState = createNewGameState(initialState, state);
             break;
         case 'move':
             const { card: selectedCard, origin, destination, isUndo } = action;
@@ -386,6 +409,7 @@ function cardMapReducer(state, action) {
                 [origin]: fromArray,
                 [destination]: toArray,
                 cardMap,
+                numMoves: isUndo ? state.numMoves - 1 : state.numMoves + 1,
                 undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
                 undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'move', origin, destination, card: selectedCard }],
             };
@@ -410,6 +434,7 @@ function cardMapReducer(state, action) {
                     ...state,
                     cards: newCards,
                     cardMap: newCardMap,
+                    numMoves: state.numMoves + 1,
                     deck: newDeck,
                     discardPile: [],
                     undoIdx: state.undoIdx + 1,
@@ -437,6 +462,7 @@ function cardMapReducer(state, action) {
                 ...state,
                 cards: newCards,
                 cardMap: newCardMap,
+                numMoves: state.numMoves + 1,
                 deck: newDeck,
                 discardPile: newDiscardPile,
                 undoIdx: state.undoIdx + 1,
@@ -475,6 +501,7 @@ function cardMapReducer(state, action) {
 
                 newGameState = {
                     ...state,
+                    numMoves: state.numMoves - 1,
                     cards: newCards,
                     cardMap: newCardMap,
                     deck: [],
@@ -503,13 +530,15 @@ function cardMapReducer(state, action) {
                 newGameState = {
                     ...state,
                     cards,
+                    numMoves: state.numMoves - 1,
                     cardMap,
                     deck,
                     discardPile,
                 };
                 break;
             }
-        } break;
+            break;
+        }
         case 'decrementUndo':
             newGameState = {
                 ...state,
@@ -536,19 +565,19 @@ function useGameState() {
 }
 
 function shuffle(cards) {
-    let deck = Object.keys(cards);
-    const numCards = deck.length;
+    let shuffledCards = Object.keys(cards);
+    const numCards = shuffledCards.length;
 
     for (let i = 0; i < numCards; i++) {
         const idx1 = Math.floor(Math.random() * numCards);
         const idx2 = Math.floor(Math.random() * numCards);
 
-        const temp = deck[idx1];
-        deck[idx1] = deck[idx2];
-        deck[idx2] = temp;
+        const temp = shuffledCards[idx1];
+        shuffledCards[idx1] = shuffledCards[idx2];
+        shuffledCards[idx2] = temp;
     }
 
-    return deck;
+    return shuffledCards;
 }
 
 function reverseDeck(deck) {
@@ -575,11 +604,11 @@ function returnCardsToDeck(state) {
     }
     newGameState = { ...newGameState, deck: [...shuffledDeck] };
 
-    return { ...newGameState, settings: {...state.settings} };
+    return { ...newGameState, settings: { ...state.settings }, statistics: state.statistics };
 }
 
 function dealCards(currentState) {
-    let newGameState = {...currentState};
+    let newGameState = { ...currentState };
 
     const pileKeys = Object.keys(newGameState).slice(4, 11);
 
@@ -603,7 +632,7 @@ function dealCards(currentState) {
     return { ...newGameState, deck };
 }
 
-function createNewGameState(initialState, currentSettings = null) {
+function createNewGameState(initialState, currentState = null) {
     let newGameState = { ...initialState };
 
     // shufflecards
@@ -634,7 +663,7 @@ function createNewGameState(initialState, currentSettings = null) {
         idx1++;
     }
 
-    return currentSettings ? { ...newGameState, settings: currentSettings } : newGameState;
+    return currentState ? { ...newGameState, settings: currentState.settings, statistics: currentState.statistics } : newGameState;
 }
 
 export default useGameState;

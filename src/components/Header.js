@@ -29,18 +29,10 @@ function NewGameButton({ startNewGame }) {
   )
 }
 
-function Header({ undo, undoDisabled, state, dispatcher, setPlayEnabled }) {
+function Header({ undo, undoDisabled, state, dispatcher, startNewGame }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   // const [cardBack, setCardBack] = useState(CONSTS.defaultPicture);
-
-  async function startNewGame() {
-    setPlayEnabled(false);
-    dispatcher({ type: 'stackCards' });
-    await new Promise(result => setTimeout(result, CONSTS.dealCardsDelay));
-    dispatcher({ type: 'dealCards' });
-    setPlayEnabled(true);
-  }
 
   function onSettingsBtnClick() {
     setDifficulty(state.settings.difficulty);

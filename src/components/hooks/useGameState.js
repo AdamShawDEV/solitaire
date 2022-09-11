@@ -336,7 +336,10 @@ const initialState = {
     undoArray: [],
     points: 0,
     numMoves: 0,
+    numDeckPasses: 0,
     gameState: GAME_STATE.PLAYING,
+    elapsedTime: 0,
+    timerIntervalsElapsed: 0,
     settings: {
         difficulty: 'easy',
         cardBack: '',
@@ -367,15 +370,24 @@ function cardMapReducer(state, action) {
     let newGameState = {};
 
     switch (action.type) {
+        case 'addPoints':
+            const { pointsToAdd, elapsedTime } = action;
+            
+            newGameState = {
+                ...state,
+                points: state.points + pointsToAdd,
+                timerIntervalsElapsed: Math.floor(elapsedTime / 10),
+                elapsedTime,
+            };
+            break;
         case 'checkGameState':
             const numCardsInFoundations = state.foundationH.length + state.foundationD.length + state.foundationC.length + state.foundationS.length;
 
             if (numCardsInFoundations === CONSTS.numCards) {
-                const gamesPlayed = state.statistics.gamesPlayed + 1;
                 const highScore = state.points > state.statistics.highScore ? state.points : state.statistics.highScore
                 const gameState = GAME_STATE.WON;
 
-                newGameState = { ...state, gameState, statistics: { ...state.statistics, highScore, gamesPlayed } };
+                newGameState = { ...state, gameState, statistics: { ...state.statistics, highScore } };
             }
             else {
                 newGameState = { ...state };
@@ -404,6 +416,17 @@ function cardMapReducer(state, action) {
                 cardMap = { ...cardMap, [card]: destination }
             )
 
+            let points = state.points;
+            if (destination.slice(0, 4) === 'foun') {
+                points = points + 10;
+            } else if (origin.slice(0, 4) === 'foun') {
+                points = isUndo ? points - 10 : points - 15;
+            } else if (destination.slice(0, 4) === 'pile' && origin.slice(0, 4) === 'pile') {
+                points = isUndo ? points - 3 : points + 3;
+            } else if (destination.slice(0, 4) === 'pile' || origin.slice(0, 4) === 'pile') {
+                points = isUndo ? points - 5 : points + 5;
+            }
+
             newGameState = {
                 ...state,
                 [origin]: fromArray,
@@ -412,6 +435,7 @@ function cardMapReducer(state, action) {
                 numMoves: isUndo ? state.numMoves - 1 : state.numMoves + 1,
                 undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
                 undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'move', origin, destination, card: selectedCard }],
+                points,
             };
             break;
         case 'deal':
@@ -430,6 +454,13 @@ function cardMapReducer(state, action) {
                     newCardMap[card] = 'deck'
                 );
 
+                // calculate points
+                let points = state.points;
+                const passesBeforeMinusPoints = state.settings.difficulty === 'easy' ? 1 : 4;
+                if (state.numDeckPasses >= passesBeforeMinusPoints) {
+                    points = points - (state.settings.difficulty === 'easy' ? 100 : 20);
+                }
+
                 newGameState = {
                     ...state,
                     cards: newCards,
@@ -439,6 +470,8 @@ function cardMapReducer(state, action) {
                     discardPile: [],
                     undoIdx: state.undoIdx + 1,
                     undoArray: [...state.undoArray, { type: 'deal', actionTaken: 'deckReverse' }],
+                    points,
+                    numDeckPasses: state.numDeckPasses + 1,
                 }
                 break;
             }
@@ -499,6 +532,13 @@ function cardMapReducer(state, action) {
                     newCardMap[card] = 'discardPile'
                 );
 
+                // calculate points
+                let points = state.points;
+                const passesBeforeMinusPoints = state.settings.difficulty === 'easy' ? 1 : 4;
+                if (state.numDeckPasses >= passesBeforeMinusPoints) {
+                    points = points + (state.settings.difficulty === 'easy' ? 100 : 20);
+                }
+
                 newGameState = {
                     ...state,
                     numMoves: state.numMoves - 1,
@@ -506,13 +546,13 @@ function cardMapReducer(state, action) {
                     cardMap: newCardMap,
                     deck: [],
                     discardPile,
+                    numDeckPasses: state.numDeckPasses - 1,
+                    points,
                 };
                 break;
             } else if (actionTaken === 'cardsDelt') {
-                console.log('cardsDelt', numCardsDealt);
                 const discardPile = state.discardPile.slice(0, -numCardsDealt);
                 const returnedCards = state.discardPile.slice(-numCardsDealt);
-                console.log(returnedCards);
 
                 let cards = { ...state.cards };
                 for (const card of returnedCards) {
@@ -595,6 +635,9 @@ function reverseDeck(deck) {
 function returnCardsToDeck(state) {
     let newGameState = { ...initialState };
 
+    // update games played
+    const gamesPlayed = state.statistics.gamesPlayed + 1;
+
     // shufflecards
     const shuffledDeck = shuffle(initialState.cards);
 
@@ -604,13 +647,13 @@ function returnCardsToDeck(state) {
     }
     newGameState = { ...newGameState, deck: [...shuffledDeck] };
 
-    return { ...newGameState, settings: { ...state.settings }, statistics: state.statistics };
+    return { ...newGameState, settings: { ...state.settings }, statistics: {...state.statistics, gamesPlayed} };
 }
 
 function dealCards(currentState) {
     let newGameState = { ...currentState };
 
-    const pileKeys = Object.keys(newGameState).slice(4, 11);
+    const pileKeys = Object.keys(newGameState).filter(i => i.slice(0, 4) === 'pile');
 
     let idx1 = 0;
     let idx2 = pileKeys.length;
@@ -632,38 +675,43 @@ function dealCards(currentState) {
     return { ...newGameState, deck };
 }
 
-function createNewGameState(initialState, currentState = null) {
+function createNewGameState(initialState) {
     let newGameState = { ...initialState };
+    newGameState = returnCardsToDeck(newGameState);
+    return dealCards(newGameState);
 
-    // shufflecards
-    const shuffledDeck = shuffle(initialState.cards);
 
-    // put all cards in the deck
-    for (const cardName of shuffledDeck) {
-        newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: 'deck' } };
-    }
-    newGameState = { ...newGameState, deck: [...shuffledDeck] };
+    // let newGameState = { ...initialState };
 
-    // deal the cards from deck
-    const pileKeys = Object.keys(newGameState).slice(4, 11);
+    // // shufflecards
+    // const shuffledDeck = shuffle(initialState.cards);
 
-    let idx1 = 0;
-    let idx2 = pileKeys.length;
-    while (idx1 < idx2) {
-        for (let i = idx1; i < idx2; i++) {
-            const cardName = newGameState.deck.pop();
-            const pileName = pileKeys[i];
-            newGameState = { ...newGameState, [pileName]: [...newGameState[pileName], cardName] };
-            newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: pileName } };
-            if (i === idx1) {
-                newGameState = { ...newGameState, cards: { ...newGameState.cards, [cardName]: { ...newGameState.cards[cardName], face: 'up' } } };
-            }
-        }
+    // // put all cards in the deck
+    // for (const cardName of shuffledDeck) {
+    //     newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: 'deck' } };
+    // }
+    // newGameState = { ...newGameState, deck: [...shuffledDeck] };
 
-        idx1++;
-    }
+    // // deal the cards from deck
+    // const pileKeys = Object.keys(newGameState).slice(4, 11);
 
-    return currentState ? { ...newGameState, settings: currentState.settings, statistics: currentState.statistics } : newGameState;
+    // let idx1 = 0;
+    // let idx2 = pileKeys.length;
+    // while (idx1 < idx2) {
+    //     for (let i = idx1; i < idx2; i++) {
+    //         const cardName = newGameState.deck.pop();
+    //         const pileName = pileKeys[i];
+    //         newGameState = { ...newGameState, [pileName]: [...newGameState[pileName], cardName] };
+    //         newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: pileName } };
+    //         if (i === idx1) {
+    //             newGameState = { ...newGameState, cards: { ...newGameState.cards, [cardName]: { ...newGameState.cards[cardName], face: 'up' } } };
+    //         }
+    //     }
+
+    //     idx1++;
+    // }
+
+    // return currentState ? { ...newGameState, settings: currentState.settings, statistics: currentState.statistics } : newGameState;
 }
 
 export default useGameState;

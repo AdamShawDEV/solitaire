@@ -5,8 +5,9 @@ import { CONSTS, GAME_STATE, piles } from '../consts';
 import Header from './Header';
 import Modal from './Modal';
 import styles from './modules/Solitaire.module.css';
+import useTimer from './hooks/useTimer';
 
-function Card({ id, selected, onSelect, positionX, positionY, style }) {
+function Card({ id, selected, onSelect, stack, style, idx }) {
     const [isMoving, setIsMoving] = useState(false);
 
     useEffect(() => {
@@ -14,14 +15,14 @@ function Card({ id, selected, onSelect, positionX, positionY, style }) {
         const timerId = setTimeout(() => setIsMoving(false), CONSTS.moveDuration * 1000);
 
         return () => clearTimeout(timerId);
-    }, [positionX, positionY])
+    }, [stack])
 
     return (
         <div
             id={id}
             className={`card ${selected ? 'selectedCard' : ''}`}
             onClick={(e) => onSelect(e)}
-            style={isMoving ? { ...style, zIndex: Number.parseInt(style.zIndex) + CONSTS.numCards } : style}>
+            style={{ ...style, zIndex: isMoving ? idx + CONSTS.numCards : idx }}>
         </div>
     )
 }
@@ -33,12 +34,32 @@ function Solitaire() {
     const [scaleFactor, setScaleFactor] = useState(
         Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
     const [playEnabled, setPlayEnabled] = useState(true);
+    const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } = useTimer(state.elapsedTime);
 
     useEffect(() => {
         setScaleFactor(Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
     }, [windowDimentions]);
 
+    useEffect(() => {
+        if (state.gameState === GAME_STATE.WON) {
+            stopTimer();
+        }
+        // eslint-disable-next-line
+    }, [state.gameState]);
+
+    // timer points
+    if (state.timerIntervalsElapsed < Math.floor(secondsElapsed / 10)) {
+        dispatcher({
+            type: 'addPoints',
+            pointsToAdd: -2,
+            elapsedTime: secondsElapsed,
+        });
+    }
+
     async function startNewGame() {
+        stopTimer();
+        resetTimer();
+        setSelection(null);
         setPlayEnabled(false);
         dispatcher({ type: 'stackCards' });
         await new Promise(result => setTimeout(result, CONSTS.dealCardsDelay));
@@ -73,6 +94,8 @@ function Solitaire() {
     function onSelect(e) {
         if (!playEnabled) return;
         const clickedItem = e.target.id;
+
+        if (!isTimerRunning) startTimer();
 
         // if deck is clicked deal cards
         if (state.cardMap[clickedItem] === 'deck' || clickedItem === 'deck') {
@@ -154,8 +177,13 @@ function Solitaire() {
                 undo={undo}
                 undoDisabled={state.undoIdx < 0}
                 state={state} dispatcher={dispatcher}
-                startNewGame={startNewGame} />
+                startNewGame={startNewGame}
+                secondsElapsed={secondsElapsed} />
             <div className='game' style={{ width: `${CONSTS.maxWidth * scaleFactor}px`, height: `${CONSTS.maxHeight * scaleFactor}px` }}>
+                <div className={styles.stateDisplay} style={{ fontSize: `${20 * scaleFactor}px` }}>
+                    <h2>moves: {state.numMoves}</h2>
+                    <h2>points: {state.points}</h2>
+                </div>
                 {Object.keys(piles).map((key) => {
                     const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
                     const positionY = (CONSTS.spacer + piles[key].base.y * CONSTS.spacer) * scaleFactor;
@@ -198,12 +226,11 @@ function Solitaire() {
                     }
 
                     return (
-                        <Card key={cardName} id={cardName} selected={selection === cardName} onSelect={onSelect} positionX={positionX} positionY={positionY} style={{
+                        <Card key={cardName} id={cardName} selected={selection === cardName} onSelect={onSelect} stack={stack} idx={idx} style={{
                             width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
                             height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
                             left: `${positionX}px`,
                             top: `${positionY}px`,
-                            zIndex: `${idx}`,
                             backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
                             backgroundImage: `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : './images/card-back.svg'})`,
                             backgroundSize: `100%`,

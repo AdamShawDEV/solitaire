@@ -3,7 +3,7 @@ import { AiOutlineSetting } from 'react-icons/ai';
 import { CONSTS } from '../consts';
 import Modal from './Modal';
 import styles from './modules/Header.module.css';
-// import TimerDisplay from './TimerDisplay';
+import TimerDisplay from './TimerDisplay';
 
 function NewGameButton({ startNewGame }) {
   const [newGameModalOpen, setNewGameModalOpen] = useState();
@@ -29,7 +29,7 @@ function NewGameButton({ startNewGame }) {
   )
 }
 
-function Header({ undo, undoDisabled, state, dispatcher, startNewGame }) {
+function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   // const [cardBack, setCardBack] = useState(CONSTS.defaultPicture);
@@ -66,7 +66,7 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame }) {
           <NewGameButton startNewGame={startNewGame} />
           <button onClick={undo} disabled={undoDisabled}>undo</button>
         </div>
-        {/* <TimerDisplay secondsElapsed={secondsElapsed} /> */}
+        <TimerDisplay secondsElapsed={secondsElapsed} />
         <div className={styles.settingBtn} onClick={onSettingsBtnClick}>
           <AiOutlineSetting />
         </div>

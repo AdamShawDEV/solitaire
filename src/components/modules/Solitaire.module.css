@@ -22,3 +22,12 @@
   .gameWonModal button:active {
     background-color: rgb(46, 84, 255);
   }
+
+  .stateDisplay {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .stateDisplay h2 {
+    margin-top: 0;
+  }

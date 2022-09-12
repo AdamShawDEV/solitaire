@@ -178,7 +178,8 @@ function Solitaire() {
                 undoDisabled={state.undoIdx < 0}
                 state={state} dispatcher={dispatcher}
                 startNewGame={startNewGame}
-                secondsElapsed={secondsElapsed} />
+                secondsElapsed={secondsElapsed}
+                playEnabled={playEnabled} />
             <div className='game' style={{ width: `${CONSTS.maxWidth * scaleFactor}px`, height: `${CONSTS.maxHeight * scaleFactor}px` }}>
                 <div className={styles.stateDisplay} style={{ fontSize: `${20 * scaleFactor}px` }}>
                     <h2>moves: {state.numMoves}</h2>

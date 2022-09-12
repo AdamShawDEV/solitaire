@@ -5,7 +5,7 @@ import Modal from './Modal';
 import styles from './modules/Header.module.css';
 import TimerDisplay from './TimerDisplay';
 
-function NewGameButton({ startNewGame }) {
+function NewGameButton({ startNewGame, playEnabled }) {
   const [newGameModalOpen, setNewGameModalOpen] = useState();
 
   const newGame = () => {
@@ -15,7 +15,9 @@ function NewGameButton({ startNewGame }) {
 
   return (
     <>
-      <button onClick={() => setNewGameModalOpen(true)}>new game</button>
+      <button onClick={() => setNewGameModalOpen(true)} disabled={!playEnabled}>
+        new game
+        </button>
       {newGameModalOpen && <Modal>
         <div className={styles.modal}>
         <h1>Start New Game?</h1>
@@ -29,7 +31,7 @@ function NewGameButton({ startNewGame }) {
   )
 }
 
-function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed}) {
+function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed, playEnabled}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   const [cardBack, setCardBack] = useState(state.settings.cardBack);
@@ -64,7 +66,7 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
       <header className={styles.header} >
         <div>
           <span className={styles.title} >Solitaire</span>
-          <NewGameButton startNewGame={startNewGame} />
+            <NewGameButton startNewGame={startNewGame} playEnabled={playEnabled} />
           <button onClick={undo} disabled={undoDisabled}>undo</button>
         </div>
         <TimerDisplay secondsElapsed={secondsElapsed} />

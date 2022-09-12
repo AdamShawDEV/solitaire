@@ -17,21 +17,21 @@ function NewGameButton({ startNewGame, playEnabled }) {
     <>
       <button onClick={() => setNewGameModalOpen(true)} disabled={!playEnabled}>
         new game
-        </button>
+      </button>
       {newGameModalOpen && <Modal>
         <div className={styles.modal}>
-        <h1>Start New Game?</h1>
-        <div>
-          <button onClick={newGame}>yes</button>
-          <button onClick={() => setNewGameModalOpen(false)}>cancel</button>
-        </div>
+          <h1>Start New Game?</h1>
+          <div>
+            <button onClick={newGame}>yes</button>
+            <button onClick={() => setNewGameModalOpen(false)}>cancel</button>
+          </div>
         </div>
       </Modal>}
     </>
   )
 }
 
-function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed, playEnabled}) {
+function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed, playEnabled }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   const [cardBack, setCardBack] = useState(state.settings.cardBack);
@@ -56,7 +56,9 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
       difficulty,
       cardBack,
     });
-    startNewGame();
+
+    if (state.settings.difficulty !== difficulty)
+      startNewGame();
 
     setSettingsOpen(false);
   }
@@ -66,7 +68,7 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
       <header className={styles.header} >
         <div>
           <span className={styles.title} >Solitaire</span>
-            <NewGameButton startNewGame={startNewGame} playEnabled={playEnabled} />
+          <NewGameButton startNewGame={startNewGame} playEnabled={playEnabled} />
           <button onClick={undo} disabled={undoDisabled}>undo</button>
         </div>
         <TimerDisplay secondsElapsed={secondsElapsed} />
@@ -87,7 +89,7 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
             <select value={cardBack} onChange={(e) => setCardBack(e.target.value)}>
               {CONSTS.cardBacks.map((i) =>
                 <option key={i} value={i}>{i}</option>
-                )}
+              )}
             </select>
             <div>
               <button>submit</button>

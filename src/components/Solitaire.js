@@ -8,21 +8,24 @@ import styles from './modules/Solitaire.module.css';
 import useTimer from './hooks/useTimer';
 
 function Card({ id, selected, onSelect, stack, style, idx }) {
-    const [isMoving, setIsMoving] = useState(false);
+    const [zIndex, setZIndex] = useState(idx);
 
     useEffect(() => {
-        setIsMoving(true);
-        const timerId = setTimeout(() => setIsMoving(false), CONSTS.moveDuration * 1000);
+        setZIndex(idx + CONSTS.numCards); // card is moving bring forward to prevent cliping
+        const timerId = setTimeout(() => setZIndex(idx), CONSTS.moveDuration * 1000); // card has finished moving place at correct z index
 
-        return () => clearTimeout(timerId);
-    }, [stack])
+        return () => {
+            clearTimeout(timerId);
+            setZIndex(idx + CONSTS.numCards); // if card is about to move bring it forward on the z index
+        };
+    }, [stack, idx])
 
     return (
         <div
             id={id}
             className={`card ${selected ? 'selectedCard' : ''}`}
             onClick={(e) => onSelect(e)}
-            style={{ ...style, zIndex: isMoving ? idx + CONSTS.numCards : idx }}>
+            style={{ ...style, zIndex: zIndex }}>
         </div>
     )
 }
@@ -216,8 +219,16 @@ function Solitaire() {
                 {Object.keys(state.cards).map((cardName) => {
                     const stack = state.cardMap[cardName];
                     const idx = state[stack].findIndex(element => element === cardName);
-                    const positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
                     const bgImage = `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : `./images/${state.settings.cardBack}-back.svg`})`
+
+                    let positionY = 0;
+                    if (isPile(stack)) {
+                        const pileHeight = state[stack].length * CONSTS.spacer + CONSTS.cardDimensions.y;
+                        const pileHeightFactor = Math.min(CONSTS.maxPileHeight / pileHeight, 1);
+                        positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y * pileHeightFactor)) * scaleFactor;
+                    } else {
+                        positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
+                    }
 
                     let positionX = 0;
                     if (stack === 'discardPile' && state[stack].length > 3) {

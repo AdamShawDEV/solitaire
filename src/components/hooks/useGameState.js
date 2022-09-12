@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { CONSTS, GAME_STATE } from "../../consts";
 
 const InitailCards = {
     'h-1': {
@@ -331,51 +332,76 @@ const initialState = {
     foundationD: [],
     foundationC: [],
     foundationS: [],
+    undoIdx: -1,
+    undoArray: [],
+    points: 0,
+    numMoves: 0,
+    numDeckPasses: 0,
+    gameState: GAME_STATE.PLAYING,
+    elapsedTime: 0,
+    timerIntervalsElapsed: 0,
     settings: {
         difficulty: 'easy',
         cardBack: '',
     },
-    undoIdx: -1,
-    undoArray: [],
-
-}
+    statistics: {
+        gamesPlayed: 0,
+        gamesWon: 0,
+        highScore: 0,
+    }
+};
 
 function cardMapInit(initialState) {
-    let newState = { ...initialState };
-
-    // shufflecards
-    const shuffledDeck = shuffle(initialState.cards);
-
-    // put all cards in the deck
-    for (const cardName of shuffledDeck) {
-        newState = { ...newState, cardMap: { ...newState.cardMap, [cardName]: 'deck' } };
-    }
-    newState = { ...newState, deck: [...shuffledDeck] };
-
-    // deal the cards from deck
-    const pileKeys = Object.keys(newState).slice(4, 11);
-
-    let idx1 = 0;
-    let idx2 = pileKeys.length;
-    while (idx1 < idx2) {
-        for (let i = idx1; i < idx2; i++) {
-            const cardName = newState.deck.pop();
-            const pileName = pileKeys[i];
-            newState = { ...newState, [pileName]: [...newState[pileName], cardName] };
-            newState = { ...newState, cardMap: { ...newState.cardMap, [cardName]: pileName } };
-            if (i === idx1) {
-                newState = { ...newState, cards: { ...newState.cards, [cardName]: { ...newState.cards[cardName], face: 'up' } } };
-            }
-        }
-
-        idx1++;
+    let gameState = {};
+    try {
+        gameState = JSON.parse(localStorage.getItem('solitaireGameState'));
+    } catch {
+        console.log('unable to parse game state from local storage');
     }
 
-    return newState;
+    if (!gameState) {
+        gameState = createNewGameState(initialState);
+    }
+
+    return gameState;
 }
 
 function cardMapReducer(state, action) {
+    let newGameState = {};
+
     switch (action.type) {
+        case 'addPoints':
+            const { pointsToAdd, elapsedTime } = action;
+            
+            newGameState = {
+                ...state,
+                points: state.points + pointsToAdd,
+                timerIntervalsElapsed: Math.floor(elapsedTime / 10),
+                elapsedTime,
+            };
+            break;
+        case 'checkGameState':
+            const numCardsInFoundations = state.foundationH.length + state.foundationD.length + state.foundationC.length + state.foundationS.length;
+
+            if (numCardsInFoundations === CONSTS.numCards) {
+                const highScore = state.points > state.statistics.highScore ? state.points : state.statistics.highScore
+                const gameState = GAME_STATE.WON;
+
+                newGameState = { ...state, gameState, statistics: { ...state.statistics, highScore } };
+            }
+            else {
+                newGameState = { ...state };
+            }
+            break;
+        case 'stackCards':
+            newGameState = returnCardsToDeck(state);
+            break;
+        case 'dealCards':
+            newGameState = dealCards(state);
+            break;
+        case 'startNewGame':
+            newGameState = createNewGameState(initialState, state);
+            break;
         case 'move':
             const { card: selectedCard, origin, destination, isUndo } = action;
 
@@ -390,18 +416,30 @@ function cardMapReducer(state, action) {
                 cardMap = { ...cardMap, [card]: destination }
             )
 
-            return {
+            let points = state.points;
+            if (destination.slice(0, 4) === 'foun') {
+                points = points + 10;
+            } else if (origin.slice(0, 4) === 'foun') {
+                points = isUndo ? points - 10 : points - 15;
+            } else if (destination.slice(0, 4) === 'pile' && origin.slice(0, 4) === 'pile') {
+                points = isUndo ? points - 3 : points + 3;
+            } else if (destination.slice(0, 4) === 'pile' || origin.slice(0, 4) === 'pile') {
+                points = isUndo ? points - 5 : points + 5;
+            }
+
+            newGameState = {
                 ...state,
                 [origin]: fromArray,
                 [destination]: toArray,
                 cardMap,
+                numMoves: isUndo ? state.numMoves - 1 : state.numMoves + 1,
                 undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
                 undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'move', origin, destination, card: selectedCard }],
+                points,
             };
-
+            break;
         case 'deal':
             if (state.deck.length === 0) {    // deck empty
-                console.log('deckempty');
                 const newDeck = reverseDeck(state.discardPile);
                 let newCards = { ...state.cards };
 
@@ -416,16 +454,26 @@ function cardMapReducer(state, action) {
                     newCardMap[card] = 'deck'
                 );
 
-                return {
+                // calculate points
+                let points = state.points;
+                const passesBeforeMinusPoints = state.settings.difficulty === 'easy' ? 1 : 4;
+                if (state.numDeckPasses >= passesBeforeMinusPoints) {
+                    points = points - (state.settings.difficulty === 'easy' ? 100 : 20);
+                }
+
+                newGameState = {
                     ...state,
                     cards: newCards,
                     cardMap: newCardMap,
+                    numMoves: state.numMoves + 1,
                     deck: newDeck,
                     discardPile: [],
                     undoIdx: state.undoIdx + 1,
                     undoArray: [...state.undoArray, { type: 'deal', actionTaken: 'deckReverse' }],
+                    points,
+                    numDeckPasses: state.numDeckPasses + 1,
                 }
-
+                break;
             }
 
             const numCardsToDeal = Math.min(state.settings.difficulty === 'easy' ? 1 : 3, state.deck.length);
@@ -443,95 +491,111 @@ function cardMapReducer(state, action) {
                 newCardMap = { ...newCardMap, [card]: 'discardPile' };
             });
 
-            return {
+            newGameState = {
                 ...state,
                 cards: newCards,
                 cardMap: newCardMap,
+                numMoves: state.numMoves + 1,
                 deck: newDeck,
                 discardPile: newDiscardPile,
                 undoIdx: state.undoIdx + 1,
                 undoArray: [...state.undoArray, { type: 'deal', actionTaken: 'cardsDelt', numCardsDealt: numCardsToDeal }],
             };
+            break;
         case 'turnOverCard': {
             const { cardName, isUndo } = action;
             const newFace = state.cards[cardName].face === 'up' ? 'down' : 'up';
             const newCards = { ...state.cards, [cardName]: { ...state.cards[cardName], face: newFace } };
-            return {
+            newGameState = {
                 ...state,
                 cards: newCards,
                 undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
                 undoArray: isUndo ? state.undoArray : [...state.undoArray, { type: 'turnOverCard', cardName, }],
             }
+            break;
         }
-        case 'unDeal':
-            {
-                const { actionTaken, numCardsDealt } = action;
+        case 'unDeal': {
+            const { actionTaken, numCardsDealt } = action;
 
-                if (actionTaken === 'deckReverse') {
-                    const discardPile = reverseDeck(state.deck);
-                    let newCards = { ...state.cards };
+            if (actionTaken === 'deckReverse') {
+                const discardPile = reverseDeck(state.deck);
+                let newCards = { ...state.cards };
 
-                    // reverse all the cards in the discardPile
-                    for (const card of discardPile) {
-                        newCards = { ...newCards, [card]: { ...newCards[card], face: 'up' } };
-                    }
-
-                    // update card map
-                    let newCardMap = { ...state.cardMap };
-                    discardPile.forEach(card =>
-                        newCardMap[card] = 'discardPile'
-                    );
-
-                    return {
-                        ...state,
-                        cards: newCards,
-                        cardMap: newCardMap,
-                        deck: [],
-                        discardPile,
-                    }
-                } else if (actionTaken === 'cardsDelt') {
-                    console.log('cardsDelt', numCardsDealt);
-                    const discardPile = state.discardPile.slice(0, -numCardsDealt);
-                    const returnedCards = state.discardPile.slice(-numCardsDealt);
-                    console.log(returnedCards);
-
-                    let cards = { ...state.cards };
-                    for (const card of returnedCards) {
-                        cards = { ...cards, [card]: { ...cards[card], face: 'down' } };
-                    }
-
-                    const deck = [...state.deck, ...reverseDeck(returnedCards)];
-
-                    let cardMap = { ...state.cardMap };
-
-                    returnedCards.forEach(card => {
-                        cardMap = { ...cardMap, [card]: 'deck' }
-                    });
-
-                    return {
-                        ...state,
-                        cards,
-                        cardMap,
-                        deck,
-                        discardPile,
-                    };
-
+                // reverse all the cards in the discardPile
+                for (const card of discardPile) {
+                    newCards = { ...newCards, [card]: { ...newCards[card], face: 'up' } };
                 }
+
+                // update card map
+                let newCardMap = { ...state.cardMap };
+                discardPile.forEach(card =>
+                    newCardMap[card] = 'discardPile'
+                );
+
+                // calculate points
+                let points = state.points;
+                const passesBeforeMinusPoints = state.settings.difficulty === 'easy' ? 1 : 4;
+                if (state.numDeckPasses >= passesBeforeMinusPoints) {
+                    points = points + (state.settings.difficulty === 'easy' ? 100 : 20);
+                }
+
+                newGameState = {
+                    ...state,
+                    numMoves: state.numMoves - 1,
+                    cards: newCards,
+                    cardMap: newCardMap,
+                    deck: [],
+                    discardPile,
+                    numDeckPasses: state.numDeckPasses - 1,
+                    points,
+                };
+                break;
+            } else if (actionTaken === 'cardsDelt') {
+                const discardPile = state.discardPile.slice(0, -numCardsDealt);
+                const returnedCards = state.discardPile.slice(-numCardsDealt);
+
+                let cards = { ...state.cards };
+                for (const card of returnedCards) {
+                    cards = { ...cards, [card]: { ...cards[card], face: 'down' } };
+                }
+
+                const deck = [...state.deck, ...reverseDeck(returnedCards)];
+
+                let cardMap = { ...state.cardMap };
+
+                returnedCards.forEach(card => {
+                    cardMap = { ...cardMap, [card]: 'deck' }
+                });
+
+                newGameState = {
+                    ...state,
+                    cards,
+                    numMoves: state.numMoves - 1,
+                    cardMap,
+                    deck,
+                    discardPile,
+                };
+                break;
             }
             break;
+        }
         case 'decrementUndo':
-            return {
+            newGameState = {
                 ...state,
                 undoArray: state.undoArray.slice(0, -1),
                 undoIdx: state.undoIdx - 1,
             };
-            case 'settings':
-                const { difficulty } = action;
-                return { ...state, settings: { ...state.settings, difficulty, } };
+            break;
+        case 'settings':
+            const { difficulty } = action;
+            newGameState = { ...state, settings: { ...state.settings, difficulty, } };
+            break;
         default:
             console.log('invalid type in reducer');
     }
-    return state;
+
+    localStorage.setItem('solitaireGameState', JSON.stringify(newGameState));
+    return newGameState;
 }
 
 function useGameState() {
@@ -541,19 +605,19 @@ function useGameState() {
 }
 
 function shuffle(cards) {
-    let deck = Object.keys(cards);
-    const numCards = deck.length;
+    let shuffledCards = Object.keys(cards);
+    const numCards = shuffledCards.length;
 
     for (let i = 0; i < numCards; i++) {
         const idx1 = Math.floor(Math.random() * numCards);
         const idx2 = Math.floor(Math.random() * numCards);
 
-        const temp = deck[idx1];
-        deck[idx1] = deck[idx2];
-        deck[idx2] = temp;
+        const temp = shuffledCards[idx1];
+        shuffledCards[idx1] = shuffledCards[idx2];
+        shuffledCards[idx2] = temp;
     }
 
-    return deck;
+    return shuffledCards;
 }
 
 function reverseDeck(deck) {
@@ -566,6 +630,88 @@ function reverseDeck(deck) {
     }
 
     return reversedDeck;
+}
+
+function returnCardsToDeck(state) {
+    let newGameState = { ...initialState };
+
+    // update games played
+    const gamesPlayed = state.statistics.gamesPlayed + 1;
+
+    // shufflecards
+    const shuffledDeck = shuffle(initialState.cards);
+
+    // put all cards in the deck
+    for (const cardName of shuffledDeck) {
+        newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: 'deck' } };
+    }
+    newGameState = { ...newGameState, deck: [...shuffledDeck] };
+
+    return { ...newGameState, settings: { ...state.settings }, statistics: {...state.statistics, gamesPlayed} };
+}
+
+function dealCards(currentState) {
+    let newGameState = { ...currentState };
+
+    const pileKeys = Object.keys(newGameState).filter(i => i.slice(0, 4) === 'pile');
+
+    let idx1 = 0;
+    let idx2 = pileKeys.length;
+    const deck = [...newGameState.deck];
+    while (idx1 < idx2) {
+        for (let i = idx1; i < idx2; i++) {
+            const cardName = deck.pop();
+            const pileName = pileKeys[i];
+            newGameState = { ...newGameState, [pileName]: [...newGameState[pileName], cardName] };
+            newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: pileName } };
+            if (i === idx1) {
+                newGameState = { ...newGameState, cards: { ...newGameState.cards, [cardName]: { ...newGameState.cards[cardName], face: 'up' } } };
+            }
+        }
+
+        idx1++;
+    }
+
+    return { ...newGameState, deck };
+}
+
+function createNewGameState(initialState) {
+    let newGameState = { ...initialState };
+    newGameState = returnCardsToDeck(newGameState);
+    return dealCards(newGameState);
+
+
+    // let newGameState = { ...initialState };
+
+    // // shufflecards
+    // const shuffledDeck = shuffle(initialState.cards);
+
+    // // put all cards in the deck
+    // for (const cardName of shuffledDeck) {
+    //     newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: 'deck' } };
+    // }
+    // newGameState = { ...newGameState, deck: [...shuffledDeck] };
+
+    // // deal the cards from deck
+    // const pileKeys = Object.keys(newGameState).slice(4, 11);
+
+    // let idx1 = 0;
+    // let idx2 = pileKeys.length;
+    // while (idx1 < idx2) {
+    //     for (let i = idx1; i < idx2; i++) {
+    //         const cardName = newGameState.deck.pop();
+    //         const pileName = pileKeys[i];
+    //         newGameState = { ...newGameState, [pileName]: [...newGameState[pileName], cardName] };
+    //         newGameState = { ...newGameState, cardMap: { ...newGameState.cardMap, [cardName]: pileName } };
+    //         if (i === idx1) {
+    //             newGameState = { ...newGameState, cards: { ...newGameState.cards, [cardName]: { ...newGameState.cards[cardName], face: 'up' } } };
+    //         }
+    //     }
+
+    //     idx1++;
+    // }
+
+    // return currentState ? { ...newGameState, settings: currentState.settings, statistics: currentState.statistics } : newGameState;
 }
 
 export default useGameState;

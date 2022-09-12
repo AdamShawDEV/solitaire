@@ -10,6 +10,7 @@ const CONSTS = {
     maxHeight: 1125,
     moveDuration: 1,
     numCards: 52,
+    dealCardsDelay: 2000,
 }
 
 const piles = {
@@ -150,4 +151,9 @@ const piles = {
 
 };
 
-export { CONSTS, piles };
+const GAME_STATE = {
+    PLAYING: 'playing',
+    WON: 'gameWon',
+}
+
+export { CONSTS, piles, GAME_STATE };

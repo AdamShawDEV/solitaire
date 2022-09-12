@@ -7,7 +7,7 @@
    viewBox="0 0 39.6875 59.531249"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    sodipodi:docname="d-2.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,15 +24,32 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="2.9540685"
-     inkscape:cx="33.005328"
-     inkscape:cy="123.55841"
-     inkscape:window-width="2560"
-     inkscape:window-height="1009"
+     inkscape:zoom="1.4770343"
+     inkscape:cx="-18.61839"
+     inkscape:cy="121.86582"
+     inkscape:window-width="1366"
+     inkscape:window-height="697"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     showguides="true">
+    <sodipodi:guide
+       position="-4.2095898,57.650369"
+       orientation="0,-1"
+       id="guide850"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="1.4330519,52.097293"
+       orientation="1,0"
+       id="guide852"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="37.975874,47.260743"
+       orientation="1,0"
+       id="guide958"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
   <defs
      id="defs2">
     <mask
@@ -60,20 +77,20 @@
        y="-2.220446e-16" />
     <text
        xml:space="preserve"
-       style="font-size:12.7809px;font-family:Wingdings;-inkscape-font-specification:Wingdings;text-align:center;text-anchor:middle;fill:#ff0000;stroke-width:1.06508"
-       x="0.78330177"
-       y="10.605688"
+       style="font-size:9.24292px;font-family:Wingdings;-inkscape-font-specification:Wingdings;text-align:center;text-anchor:middle;fill:#ff0000;stroke-width:0.770247"
+       x="1.3377085"
+       y="8.5707932"
        id="text63"><tspan
          sodipodi:role="line"
          id="tspan61"
-         x="0.78330177"
-         y="10.605688"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';text-align:start;text-anchor:start;fill:#ff0000;stroke-width:1.06508">2</tspan></text>
+         x="1.3377085"
+         y="8.5707932"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:start;text-anchor:start;fill:#ff0000;stroke-width:0.770247">2</tspan></text>
     <g
        id="g562"
-       transform="translate(-0.10186467,0.13638609)">
+       transform="translate(7.2273902e-8,0.206835)">
       <path
-         style="fill:#ff2a2a;stroke-width:0.44551"
+         style="fill:#ff5555;stroke-width:0.44551"
          d="m 8.2240844,39.874087 c 0.2469316,0.0669 3.9074856,4.207994 6.5335066,7.862002 1.698416,2.363278 5.085008,7.616331 5.085008,7.616331 V 24.18275 c 0,0 -3.473697,5.72565 -5.343438,8.218638 -1.756425,2.436329 -6.2750766,7.472699 -6.2750766,7.472699 z"
          id="path1044"
          sodipodi:nodetypes="cscccc" />
@@ -85,9 +102,9 @@
     </g>
     <g
        id="g562-4"
-       transform="matrix(0.5490071,0,0,0.5490071,18.849617,-11.627962)">
+       transform="matrix(0.3938665,0,0,0.3938665,25.662085,-7.6617305)">
       <path
-         style="fill:#ff2a2a;stroke-width:0.44551"
+         style="fill:#ff5555;stroke-width:0.44551"
          d="m 8.2240844,39.874087 c 0.2469316,0.0669 3.9074856,4.207994 6.5335066,7.862002 1.698416,2.363278 5.085008,7.616331 5.085008,7.616331 V 24.18275 c 0,0 -3.473697,5.72565 -5.343438,8.218638 -1.756425,2.436329 -6.2750766,7.472699 -6.2750766,7.472699 z"
          id="path1044-1"
          sodipodi:nodetypes="cscccc" />

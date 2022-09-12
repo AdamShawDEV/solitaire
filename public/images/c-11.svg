@@ -7,7 +7,7 @@
    viewBox="0 0 39.6875 59.531249"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    sodipodi:docname="c-11.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,17 +24,40 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="2.9540685"
-     inkscape:cx="114.58773"
-     inkscape:cy="84.29053"
-     inkscape:window-width="2560"
-     inkscape:window-height="1009"
+     inkscape:zoom="1.4770343"
+     inkscape:cx="-13.540647"
+     inkscape:cy="73.119494"
+     inkscape:window-width="1366"
+     inkscape:window-height="697"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     showguides="true">
+    <sodipodi:guide
+       position="-4.2095898,57.650369"
+       orientation="0,-1"
+       id="guide850"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="1.4330519,52.097293"
+       orientation="1,0"
+       id="guide852"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="37.975874,47.260743"
+       orientation="1,0"
+       id="guide958"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
   <defs
      id="defs2">
+    <rect
+       x="234.93022"
+       y="83.952011"
+       width="221.38958"
+       height="12.186582"
+       id="rect34409" />
     <mask
        maskUnits="userSpaceOnUse"
        id="mask1192">
@@ -60,21 +83,22 @@
        y="-2.220446e-16" />
     <text
        xml:space="preserve"
-       style="font-size:12.7809px;font-family:Wingdings;-inkscape-font-specification:Wingdings;text-align:center;text-anchor:middle;fill:#ff0000;stroke-width:1.06508"
-       x="0.78330177"
-       y="10.605688"
+       style="font-size:9.24292px;font-family:Wingdings;-inkscape-font-specification:Wingdings;text-align:center;text-anchor:middle;fill:#ff0000;stroke-width:0.770247"
+       x="1.3377085"
+       y="8.5707932"
        id="text63"><tspan
          sodipodi:role="line"
          id="tspan61"
-         x="0.78330177"
-         y="10.605688"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';text-align:start;text-anchor:start;fill:#000000;stroke-width:1.06508">J</tspan></text>
+         x="1.3377085"
+         y="8.5707932"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:start;text-anchor:start;fill:#000000;stroke-width:0.770247">J</tspan></text>
     <g
-       id="g699">
+       id="g699"
+       transform="translate(0.39390474,-0.229778)">
       <path
          style="fill:#333333;stroke-width:0.264583"
          d="m 19.450473,24.558591 c 0,0 -4.098473,-0.217932 -6.157644,3.470671 -2.575016,4.612638 0.873266,8.083309 0.873266,8.083309 0,0 -4.2746123,-3.061683 -7.9689866,0.322568 -3.7776221,3.460511 -2.7481421,9.560345 1.2067731,11.567284 7.6480105,3.881016 11.7555035,-5.105247 11.7555035,-5.105247 0,0 0.895657,4.142414 -2.194361,8.150481 -3.090018,4.008067 -7.9265679,3.87372 -7.9265679,3.87372 l -0.2015228,0.850874 10.7031057,0.02238 z"
-         id="path552"
+         id="path552-8"
          sodipodi:nodetypes="cscsscscccc" />
       <path
          style="fill:#000000;stroke-width:0.264583"
@@ -84,7 +108,7 @@
     </g>
     <g
        id="g699-2"
-       transform="matrix(0.53550294,0,0,0.53550294,19.315881,-11.213717)">
+       transform="matrix(0.39349254,0,0,0.39349254,24.259081,-7.7996202)">
       <path
          style="fill:#333333;stroke-width:0.264583"
          d="m 19.450473,24.558591 c 0,0 -4.098473,-0.217932 -6.157644,3.470671 -2.575016,4.612638 0.873266,8.083309 0.873266,8.083309 0,0 -4.2746123,-3.061683 -7.9689866,0.322568 -3.7776221,3.460511 -2.7481421,9.560345 1.2067731,11.567284 7.6480105,3.881016 11.7555035,-5.105247 11.7555035,-5.105247 0,0 0.895657,4.142414 -2.194361,8.150481 -3.090018,4.008067 -7.9265679,3.87372 -7.9265679,3.87372 l -0.2015228,0.850874 10.7031057,0.02238 z"
@@ -98,14 +122,8 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:3.175px;font-family:'Bauhaus 93';-inkscape-font-specification:'Bauhaus 93, ';fill:#000000;stroke-width:0.264583"
-       x="-19.97316"
-       y="41.648071"
-       id="text867"><tspan
-         sodipodi:role="line"
-         id="tspan865"
-         style="stroke-width:0.264583"
-         x="-19.97316"
-         y="41.648071">t</tspan></text>
+       transform="scale(0.26458333)"
+       id="text34407"
+       style="font-family:sans-serif;-inkscape-font-specification:sans-serif;white-space:pre;shape-inside:url(#rect34409);display:inline;fill:#000000;fill-opacity:0" />
   </g>
 </svg>

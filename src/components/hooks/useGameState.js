@@ -342,7 +342,7 @@ const initialState = {
     timerIntervalsElapsed: 0,
     settings: {
         difficulty: 'easy',
-        cardBack: '',
+        cardBack: 'default',
     },
     statistics: {
         gamesPlayed: 0,
@@ -587,8 +587,8 @@ function cardMapReducer(state, action) {
             };
             break;
         case 'settings':
-            const { difficulty } = action;
-            newGameState = { ...state, settings: { ...state.settings, difficulty, } };
+            const { difficulty, cardBack } = action;
+            newGameState = { ...state, settings: { ...state.settings, difficulty, cardBack} };
             break;
         default:
             console.log('invalid type in reducer');

@@ -32,7 +32,7 @@ function NewGameButton({ startNewGame }) {
 function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
-  // const [cardBack, setCardBack] = useState(CONSTS.defaultPicture);
+  const [cardBack, setCardBack] = useState(state.settings.cardBack);
 
   function onSettingsBtnClick() {
     setDifficulty(state.settings.difficulty);
@@ -52,6 +52,7 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
     dispatcher({
       type: 'settings',
       difficulty,
+      cardBack,
     });
     startNewGame();
 
@@ -81,8 +82,10 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
               <option value='hard'>hard: draw 3</option>
             </select>
             <label>Card Backs: </label>
-            <select>
-              <option>None Yet</option>
+            <select value={cardBack} onChange={(e) => setCardBack(e.target.value)}>
+              {CONSTS.cardBacks.map((i) =>
+                <option key={i} value={i}>{i}</option>
+                )}
             </select>
             <div>
               <button>submit</button>

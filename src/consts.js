@@ -11,6 +11,13 @@ const CONSTS = {
     moveDuration: 1,
     numCards: 52,
     dealCardsDelay: 2000,
+    cardBacks: [
+        'ladybird',
+        'checker',
+        'default',
+        'target',
+        'sunbeam',
+    ],
 }
 
 const piles = {

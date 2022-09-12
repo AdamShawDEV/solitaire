@@ -216,6 +216,7 @@ function Solitaire() {
                     const stack = state.cardMap[cardName];
                     const idx = state[stack].findIndex(element => element === cardName);
                     const positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
+                    const bgImage = `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : `./images/${state.settings.cardBack}-back.svg`})`
 
                     let positionX = 0;
                     if (stack === 'discardPile' && state[stack].length > 3) {
@@ -232,7 +233,7 @@ function Solitaire() {
                             left: `${positionX}px`,
                             top: `${positionY}px`,
                             backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
-                            backgroundImage: `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : './images/card-back.svg'})`,
+                            backgroundImage: bgImage,
                             backgroundSize: `100%`,
                             borderRadius: `${10 * scaleFactor}px`,
                         }} />

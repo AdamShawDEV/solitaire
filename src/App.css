@@ -13,16 +13,6 @@ html, body, #root {
   margin: 0 auto;
 }
 
-.card {
-  position: absolute;
-  border: solid 1px black;
-  transition: top 1s, left 1s;
-}
-
-.selectedCard {
-  filter: brightness(50%);
-}
-
 .stack {
   position: absolute;
   background-color: rgb(0, 65, 28);

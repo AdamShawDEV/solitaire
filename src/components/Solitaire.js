@@ -1,34 +1,12 @@
 import { useEffect, useState } from 'react';
 import useWindowDimensions from './hooks/useWindowDimensions';
 import useGameState from './hooks/useGameState';
-import { CONSTS, GAME_STATE, piles } from '../consts';
+import { CONSTS, GAME_STATE, piles, isCard, isPile, isFoundation } from '../consts';
 import Header from './Header';
 import Modal from './Modal';
 import styles from './modules/Solitaire.module.css';
 import useTimer from './hooks/useTimer';
-
-function Card({ id, selected, onSelect, stack, style, idx }) {
-    const [zIndex, setZIndex] = useState(idx);
-
-    useEffect(() => {
-        setZIndex(idx + CONSTS.numCards); // card is moving bring forward to prevent cliping
-        const timerId = setTimeout(() => setZIndex(idx), CONSTS.moveDuration * 1000); // card has finished moving place at correct z index
-
-        return () => {
-            clearTimeout(timerId);
-            setZIndex(idx + CONSTS.numCards); // if card is about to move bring it forward on the z index
-        };
-    }, [stack, idx])
-
-    return (
-        <div
-            id={id}
-            className={`card ${selected ? 'selectedCard' : ''}`}
-            onClick={(e) => onSelect(e)}
-            style={{ ...style, zIndex: zIndex }}>
-        </div>
-    )
-}
+import Card from './Card';
 
 function Solitaire() {
     const { state, dispatcher } = useGameState();
@@ -216,41 +194,15 @@ function Solitaire() {
                         ></div>
                     )
                 })}
-                {Object.keys(state.cards).map((cardName) => {
-                    const stack = state.cardMap[cardName];
-                    const idx = state[stack].findIndex(element => element === cardName);
-                    const bgImage = `url(${state.cards[cardName].face === 'up' ? `./images/${cardName}.svg` : `./images/${state.settings.cardBack}-back.svg`})`
-
-                    let positionY = 0;
-                    if (isPile(stack)) {
-                        const pileHeight = state[stack].length * CONSTS.spacer + CONSTS.cardDimensions.y;
-                        const pileHeightFactor = Math.min(CONSTS.maxPileHeight / pileHeight, 1);
-                        positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y * pileHeightFactor)) * scaleFactor;
-                    } else {
-                        positionY = (CONSTS.spacer + CONSTS.spacer * piles[stack].base.y + (idx * piles[stack].offset.y)) * scaleFactor;
-                    }
-
-                    let positionX = 0;
-                    if (stack === 'discardPile' && state[stack].length > 3) {
-                        positionX = idx > state[stack].length - 4 ? (CONSTS.spacer + CONSTS.spacer * piles[stack].base.x + (3 - (state[stack].length - idx)) * piles[stack].offset.x) * scaleFactor :
-                            (CONSTS.spacer + CONSTS.spacer * piles[stack].base.x) * scaleFactor;
-                    } else {
-                        positionX = (CONSTS.spacer + (idx * piles[stack].offset.x) + (CONSTS.spacer * piles[stack].base.x)) * scaleFactor;
-                    }
-
-                    return (
-                        <Card key={cardName} id={cardName} selected={selection === cardName} onSelect={onSelect} stack={stack} idx={idx} style={{
-                            width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
-                            height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
-                            left: `${positionX}px`,
-                            top: `${positionY}px`,
-                            backgroundColor: `${state.cards[cardName].face === 'down' ? 'purple' : 'red'}`,
-                            backgroundImage: bgImage,
-                            backgroundSize: `100%`,
-                            borderRadius: `${10 * scaleFactor}px`,
-                        }} />
-                    )
-                })}
+                {Object.keys(state.cards).map((cardName) => 
+                        <Card key={cardName}
+                            id={cardName}
+                            idx={state[state.cardMap[cardName]].findIndex(element => element === cardName)}
+                            selected={selection === cardName}
+                            onSelect={onSelect}
+                            stack={state.cardMap[cardName]}
+                            scaleFactor={scaleFactor}
+                            state={state} />)}
             </div>
             {state.gameState === GAME_STATE.WON && <Modal>
                 <div className={styles.gameWonModal}>
@@ -265,19 +217,6 @@ function Solitaire() {
         </>
     );
 
-}
-
-
-function isCard(name) {
-    return name[1] === '-';
-}
-
-function isPile(name) {
-    return name.slice(0, 4) === 'pile';
-}
-
-function isFoundation(name) {
-    return name.slice(0, 4) === 'foun';
 }
 
 export default Solitaire;

@@ -163,4 +163,16 @@ const GAME_STATE = {
     WON: 'gameWon',
 }
 
-export { CONSTS, piles, GAME_STATE };
+function isCard(name) {
+    return name[1] === '-';
+}
+
+function isPile(name) {
+    return name.slice(0, 4) === 'pile';
+}
+
+function isFoundation(name) {
+    return name.slice(0, 4) === 'foun';
+}
+
+export { CONSTS, piles, GAME_STATE, isCard, isPile, isFoundation };

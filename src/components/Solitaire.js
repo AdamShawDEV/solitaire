@@ -7,6 +7,7 @@ import Modal from './Modal';
 import styles from './modules/Solitaire.module.css';
 import useTimer from './hooks/useTimer';
 import Card from './Card';
+import PileBase from './PileBase';
 
 function Solitaire() {
     const { state, dispatcher } = useGameState();
@@ -17,10 +18,12 @@ function Solitaire() {
     const [playEnabled, setPlayEnabled] = useState(true);
     const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } = useTimer(state.elapsedTime);
 
+    // if window size has changed rescale the game
     useEffect(() => {
         setScaleFactor(Math.min(windowDimentions.width / CONSTS.maxWidth, (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight, 1));
     }, [windowDimentions]);
 
+    // if game over stop timer
     useEffect(() => {
         if (state.gameState === GAME_STATE.WON) {
             stopTimer();
@@ -166,43 +169,23 @@ function Solitaire() {
                     <h2>moves: {state.numMoves}</h2>
                     <h2>points: {state.points}</h2>
                 </div>
-                {Object.keys(piles).map((key) => {
-                    const positionX = (CONSTS.spacer + piles[key].base.x * CONSTS.spacer) * scaleFactor;
-                    const positionY = (CONSTS.spacer + piles[key].base.y * CONSTS.spacer) * scaleFactor;
-
-                    const bgImage =
-                        isFoundation(key) ? `foundation-${piles[key].suit}` :
-                            isPile(key) ? 'pile' :
-                                key === 'deck' ? 'deck' :
-                                    'discardPile';
-
-                    return (
-                        <div
-                            key={key}
-                            id={key}
-                            className={`stack ${selection === key ? "selectedPile" : ""}`}
-                            onClick={(e) => onSelect(e)}
-                            style={{
-                                width: CONSTS.cardDimensions.x * scaleFactor,
-                                height: CONSTS.cardDimensions.y * scaleFactor,
-                                left: `${positionX}px`,
-                                top: `${positionY}px`,
-                                borderRadius: `${10 * scaleFactor}px`,
-                                backgroundImage: `url('./images/${bgImage}.svg')`,
-                                backgroundSize: '100%',
-                            }}
-                        ></div>
-                    )
-                })}
-                {Object.keys(state.cards).map((cardName) => 
-                        <Card key={cardName}
-                            id={cardName}
-                            idx={state[state.cardMap[cardName]].findIndex(element => element === cardName)}
-                            selected={selection === cardName}
-                            onSelect={onSelect}
-                            stack={state.cardMap[cardName]}
-                            scaleFactor={scaleFactor}
-                            state={state} />)}
+                {Object.keys(piles).map((key) =>
+                    <PileBase
+                        key={key}
+                        id={key}
+                        scaleFactor={scaleFactor}
+                        onSelect={onSelect}
+                        selection={selection} />
+                )}
+                {Object.keys(state.cards).map((cardName) =>
+                    <Card key={cardName}
+                        id={cardName}
+                        idx={state[state.cardMap[cardName]].findIndex(element => element === cardName)}
+                        selected={selection === cardName}
+                        onSelect={onSelect}
+                        stack={state.cardMap[cardName]}
+                        scaleFactor={scaleFactor}
+                        state={state} />)}
             </div>
             {state.gameState === GAME_STATE.WON && <Modal>
                 <div className={styles.gameWonModal}>

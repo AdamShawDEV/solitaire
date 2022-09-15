@@ -14,7 +14,9 @@
 
 .header button {
   margin-left: .8rem;
-  background: none;
+  background: rgb(139, 139, 139);
+  padding: 5px;
+  border-radius: 5px;
   border: none;
   color: rgb(48, 48, 48);
   font-weight: 600;
@@ -22,7 +24,11 @@
 }
 
 .header button:hover {
-  color: rgb(99, 99, 99);
+  background: rgb(149, 149, 149);
+}
+
+.header button:active {
+  background: rgb(67, 67, 67);
 }
 
 .header button:disabled {

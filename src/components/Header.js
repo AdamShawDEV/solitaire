@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { AiOutlineSetting } from 'react-icons/ai';
 import { CONSTS } from '../consts';
 import Modal from './Modal';
 import styles from './modules/Header.module.css';
 import TimerDisplay from './TimerDisplay';
-
+import { IoArrowUndoSharp, IoSettingsOutline, IoSparkles } from 'react-icons/io5'
+ 
 function NewGameButton({ startNewGame, playEnabled }) {
   const [newGameModalOpen, setNewGameModalOpen] = useState();
 
@@ -16,7 +16,7 @@ function NewGameButton({ startNewGame, playEnabled }) {
   return (
     <>
       <button onClick={() => setNewGameModalOpen(true)} disabled={!playEnabled}>
-        new game
+        <IoSparkles />new game
       </button>
       {newGameModalOpen && <Modal>
         <div className={styles.modal}>
@@ -69,11 +69,11 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
         <div>
           <span className={styles.title} >Solitaire</span>
           <NewGameButton startNewGame={startNewGame} playEnabled={playEnabled} />
-          <button onClick={undo} disabled={undoDisabled}>undo</button>
+          <button onClick={undo} disabled={undoDisabled}><IoArrowUndoSharp />undo</button>
         </div>
         <TimerDisplay secondsElapsed={secondsElapsed} />
         <div className={styles.settingBtn} onClick={onSettingsBtnClick}>
-          <AiOutlineSetting />
+          <IoSettingsOutline />
         </div>
       </header>
       {settingsOpen && <Modal>

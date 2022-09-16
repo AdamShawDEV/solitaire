@@ -130,7 +130,8 @@ function Solitaire() {
                         });
                     }
                 } else if (state.cards[state[destination].at(-1)].rank === state.cards[card].rank + 1 &&
-                    state.cards[state[destination].at(-1)].color !== state.cards[card].color) {
+                    state.cards[state[destination].at(-1)].color !== state.cards[card].color &&
+                    state.cards[state[destination].at(-1)].face === 'up') {
                     dispatcher({
                         type: 'move',
                         card,

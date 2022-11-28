@@ -1,10 +1,15 @@
-import { useState } from 'react';
-import { CONSTS } from '../consts';
-import Modal from './Modal';
-import styles from './modules/Header.module.css';
-import TimerDisplay from './TimerDisplay';
-import { IoArrowUndoSharp, IoSettingsOutline, IoSparkles } from 'react-icons/io5'
- 
+import { useState } from "react";
+import { CONSTS } from "../consts";
+import Modal from "./Modal";
+import styles from "./modules/Header.module.css";
+import TimerDisplay from "./TimerDisplay";
+import {
+  IoArrowUndoSharp,
+  IoSettingsOutline,
+  IoSparkles,
+} from "react-icons/io5";
+import { settings } from "./hooks/gameState/actions";
+
 function NewGameButton({ startNewGame, playEnabled }) {
   const [newGameModalOpen, setNewGameModalOpen] = useState();
 
@@ -16,22 +21,33 @@ function NewGameButton({ startNewGame, playEnabled }) {
   return (
     <>
       <button onClick={() => setNewGameModalOpen(true)} disabled={!playEnabled}>
-        <IoSparkles />new game
+        <IoSparkles />
+        new game
       </button>
-      {newGameModalOpen && <Modal>
-        <div className={styles.modal}>
-          <h1>Start New Game?</h1>
-          <div>
-            <button onClick={newGame}>yes</button>
-            <button onClick={() => setNewGameModalOpen(false)}>cancel</button>
+      {newGameModalOpen && (
+        <Modal>
+          <div className={styles.modal}>
+            <h1>Start New Game?</h1>
+            <div>
+              <button onClick={newGame}>yes</button>
+              <button onClick={() => setNewGameModalOpen(false)}>cancel</button>
+            </div>
           </div>
-        </div>
-      </Modal>}
+        </Modal>
+      )}
     </>
-  )
+  );
 }
 
-function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsElapsed, playEnabled }) {
+function Header({
+  undo,
+  undoDisabled,
+  state,
+  dispatcher,
+  startNewGame,
+  secondsElapsed,
+  playEnabled,
+}) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   const [cardBack, setCardBack] = useState(state.settings.cardBack);
@@ -51,53 +67,64 @@ function Header({ undo, undoDisabled, state, dispatcher, startNewGame, secondsEl
   function onFormSubmint(e) {
     e.preventDefault();
 
-    dispatcher({
-      type: 'settings',
-      difficulty,
-      cardBack,
-    });
+    dispatcher(settings(difficulty, cardBack));
 
-    if (state.settings.difficulty !== difficulty)
-      startNewGame();
+    if (state.settings.difficulty !== difficulty) startNewGame();
 
     setSettingsOpen(false);
   }
 
   return (
     <>
-      <header className={styles.header} >
+      <header className={styles.header}>
         <div>
-          <span className={styles.title} >Solitaire</span>
-          <NewGameButton startNewGame={startNewGame} playEnabled={playEnabled} />
-          <button onClick={undo} disabled={undoDisabled}><IoArrowUndoSharp />undo</button>
+          <span className={styles.title}>Solitaire</span>
+          <NewGameButton
+            startNewGame={startNewGame}
+            playEnabled={playEnabled}
+          />
+          <button onClick={undo} disabled={undoDisabled}>
+            <IoArrowUndoSharp />
+            undo
+          </button>
         </div>
         <TimerDisplay secondsElapsed={secondsElapsed} />
         <div className={styles.settingBtn} onClick={onSettingsBtnClick}>
           <IoSettingsOutline />
         </div>
       </header>
-      {settingsOpen && <Modal>
-        <div className={styles.modal} >
-          <h1>Settings</h1>
-          <form onSubmit={(e) => onFormSubmint(e)}>
-            <label>Difficulty: </label>
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-              <option value='easy'>easy: draw 1</option>
-              <option value='hard'>hard: draw 3</option>
-            </select>
-            <label>Card Backs: </label>
-            <select value={cardBack} onChange={(e) => setCardBack(e.target.value)}>
-              {CONSTS.cardBacks.map((i) =>
-                <option key={i} value={i}>{i}</option>
-              )}
-            </select>
-            <div>
-              <button>submit</button>
-              <button onClick={onCancelBtnClick}>cancel</button>
-            </div>
-          </form>
-        </div>
-      </Modal>}
+      {settingsOpen && (
+        <Modal>
+          <div className={styles.modal}>
+            <h1>Settings</h1>
+            <form onSubmit={(e) => onFormSubmint(e)}>
+              <label>Difficulty: </label>
+              <select
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                <option value="easy">easy: draw 1</option>
+                <option value="hard">hard: draw 3</option>
+              </select>
+              <label>Card Backs: </label>
+              <select
+                value={cardBack}
+                onChange={(e) => setCardBack(e.target.value)}
+              >
+                {CONSTS.cardBacks.map((i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
+              <div>
+                <button>submit</button>
+                <button onClick={onCancelBtnClick}>cancel</button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

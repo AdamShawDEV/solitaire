@@ -32,7 +32,7 @@ function Solitaire() {
   const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } =
     useTimer(state.elapsedTime);
 
-  // if statehas changed save to localStorage
+  // if state has changed save to localStorage
   useEffect(() => {
     localStorage.setItem("solitaireGameState", JSON.stringify(state));
   }, [state]);

@@ -21,32 +21,19 @@ function Solitaire() {
   const { state, dispatcher } = useGameState();
   const [selection, setSelection] = useState(null);
   const { windowDimentions } = useWindowDimensions();
-  const [scaleFactor, setScaleFactor] = useState(
-    Math.min(
-      windowDimentions.width / CONSTS.maxWidth,
-      (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight,
-      1
-    )
-  );
   const [playEnabled, setPlayEnabled] = useState(true);
   const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } =
     useTimer(state.elapsedTime);
+  const scaleFactor = Math.min(
+    windowDimentions.width / CONSTS.maxWidth,
+    (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight,
+    1
+  );
 
   // if state has changed save to localStorage
   useEffect(() => {
     localStorage.setItem("solitaireGameState", JSON.stringify(state));
   }, [state]);
-
-  // if window size has changed rescale the game
-  useEffect(() => {
-    setScaleFactor(
-      Math.min(
-        windowDimentions.width / CONSTS.maxWidth,
-        (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight,
-        1
-      )
-    );
-  }, [windowDimentions]);
 
   // if game over stop timer
   useEffect(() => {

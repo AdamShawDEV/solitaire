@@ -12,29 +12,6 @@
   align-items: center;
 }
 
-.header button {
-  margin-left: .8rem;
-  background: rgb(139, 139, 139);
-  padding: 5px;
-  border-radius: 5px;
-  border: none;
-  color: rgb(48, 48, 48);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.header button:hover {
-  background: rgb(149, 149, 149);
-}
-
-.header button:active {
-  background: rgb(67, 67, 67);
-}
-
-.header button:disabled {
-  color: rgb(99, 99, 99);
-}
-
 .title {
   /* background-color: red; */
   font-weight: 700;
@@ -56,7 +33,7 @@
 }
 
 .modal {
-  padding: .4rem;
+  padding: 0.4rem;
 }
 
 .modal > form {
@@ -64,9 +41,10 @@
   flex-direction: column;
 }
 
-.modal label, .checkboxContainer {
-  margin-top: .7rem;
-  margin-bottom: .4rem;
+.modal label,
+.checkboxContainer {
+  margin-top: 0.7rem;
+  margin-bottom: 0.4rem;
 }
 
 .modal h1 {
@@ -75,10 +53,10 @@
 }
 
 .modal select {
-  padding: .4rem;
+  padding: 0.4rem;
   background-color: rgb(177, 191, 255);
   border: none;
-  border-radius: .4rem;
+  border-radius: 0.4rem;
   font-weight: 700;
 }
 
@@ -89,11 +67,11 @@
 
 .modal button {
   flex-grow: 1;
-  margin-top: .7rem;
-  padding: .7rem;
+  margin-top: 0.7rem;
+  padding: 0.7rem;
   background-color: rgb(108, 135, 255);
   border: none;
-  border-radius: .4rem;
+  border-radius: 0.4rem;
   font-weight: 700;
 }
 

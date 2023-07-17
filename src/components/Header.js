@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { CONSTS } from "../consts";
-import Modal from "./Modal";
 import styles from "./modules/Header.module.css";
 import TimerDisplay from "./TimerDisplay";
 import {
@@ -8,36 +6,15 @@ import {
   IoSettingsOutline,
   IoSparkles,
 } from "react-icons/io5";
-import { settings } from "./hooks/gameState/actions";
+import HeaderButton from "./HeaderButton";
+import NewGameModal from "./NewGameModal";
+import SettingsModal from "./SettingsModal";
 
-function NewGameButton({ startNewGame, playEnabled }) {
-  const [newGameModalOpen, setNewGameModalOpen] = useState();
-
-  const newGame = () => {
-    startNewGame();
-    setNewGameModalOpen(false);
-  };
-
-  return (
-    <>
-      <button onClick={() => setNewGameModalOpen(true)} disabled={!playEnabled}>
-        <IoSparkles />
-        new game
-      </button>
-      {newGameModalOpen && (
-        <Modal>
-          <div className={styles.modal}>
-            <h1>Start New Game?</h1>
-            <div>
-              <button onClick={newGame}>yes</button>
-              <button onClick={() => setNewGameModalOpen(false)}>cancel</button>
-            </div>
-          </div>
-        </Modal>
-      )}
-    </>
-  );
-}
+const OPEN_MODAL = {
+  NEW_GAME_MODAL: "NEW_GAME_MODAL",
+  SETTINGS_MODAL: "SETTINGS_MODAL",
+  NONE: "NONE",
+};
 
 function Header({
   undo,
@@ -48,83 +25,46 @@ function Header({
   secondsElapsed,
   playEnabled,
 }) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [difficulty, setDifficulty] = useState(state.settings.difficulty);
-  const [cardBack, setCardBack] = useState(state.settings.cardBack);
-
-  function onSettingsBtnClick() {
-    setDifficulty(state.settings.difficulty);
-
-    setSettingsOpen(true);
-  }
-
-  function onCancelBtnClick() {
-    setDifficulty(state.settings.difficulty);
-
-    setSettingsOpen(false);
-  }
-
-  function onFormSubmint(e) {
-    e.preventDefault();
-
-    dispatcher(settings(difficulty, cardBack));
-
-    if (state.settings.difficulty !== difficulty) startNewGame();
-
-    setSettingsOpen(false);
-  }
+  const [openModal, setOpenModal] = useState(OPEN_MODAL.NONE);
 
   return (
     <>
       <header className={styles.header}>
         <div>
           <span className={styles.title}>Solitaire</span>
-          <NewGameButton
-            startNewGame={startNewGame}
+          <HeaderButton
+            onClick={() => setOpenModal(OPEN_MODAL.NEW_GAME_MODAL)}
             playEnabled={playEnabled}
-          />
-          <button onClick={undo} disabled={undoDisabled}>
+          >
+            <IoSparkles />
+            new game
+          </HeaderButton>
+          <HeaderButton onClick={undo} disabled={undoDisabled}>
             <IoArrowUndoSharp />
             undo
-          </button>
+          </HeaderButton>
         </div>
         <TimerDisplay secondsElapsed={secondsElapsed} />
-        <div className={styles.settingBtn} onClick={onSettingsBtnClick}>
+        <div
+          className={styles.settingBtn}
+          onClick={() => setOpenModal(OPEN_MODAL.SETTINGS_MODAL)}
+        >
           <IoSettingsOutline />
         </div>
       </header>
-      {settingsOpen && (
-        <Modal>
-          <div className={styles.modal}>
-            <h1>Settings</h1>
-            <form onSubmit={(e) => onFormSubmint(e)}>
-              <label>Difficulty: </label>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-              >
-                <option value="easy">easy: draw 1</option>
-                <option value="hard">hard: draw 3</option>
-              </select>
-              <label>Card Backs: </label>
-              <select
-                value={cardBack}
-                onChange={(e) => setCardBack(e.target.value)}
-              >
-                {CONSTS.cardBacks.map((i) => (
-                  <option key={i} value={i}>
-                    {i}
-                  </option>
-                ))}
-              </select>
-              <div>
-                <button>submit</button>
-                <button onClick={onCancelBtnClick}>cancel</button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-      )}
+      {openModal === OPEN_MODAL.SETTINGS_MODAL ? (
+        <SettingsModal
+          handleClose={() => setOpenModal(OPEN_MODAL.NONE)}
+          state={state}
+          dispatcher={dispatcher}
+          startNewGame={startNewGame}
+        />
+      ) : openModal === OPEN_MODAL.NEW_GAME_MODAL ? (
+        <NewGameModal
+          handleClose={() => setOpenModal(OPEN_MODAL.NONE)}
+          startNewGame={startNewGame}
+        />
+      ) : null}
     </>
   );
 }

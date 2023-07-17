@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react";
-import useWindowDimensions from "./hooks/useWindowDimensions";
-import useGameState from "./hooks/gameState/useGameState";
-import * as actions from "./hooks/gameState/actions";
+import { useState } from "react";
+import { useGameState } from "./hooks/gameState/GameStateContext";
+import {
+  dealCards,
+  stackCards,
+  turnOverCard,
+  move,
+  deal,
+  checkGameState,
+} from "./hooks/gameState/actions";
 import {
   CONSTS,
   GAME_STATE,
@@ -16,71 +22,25 @@ import styles from "./modules/Solitaire.module.css";
 import useTimer from "./hooks/useTimer";
 import Card from "./Card";
 import PileBase from "./PileBase";
+import useScaleFactor from "./hooks/useScaleFactor";
 
 function Solitaire() {
-  const { state, dispatcher } = useGameState();
+  const { state, dispatch } = useGameState();
   const [selection, setSelection] = useState(null);
-  const { windowDimentions } = useWindowDimensions();
   const [playEnabled, setPlayEnabled] = useState(true);
   const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } =
     useTimer(state.elapsedTime);
-  const scaleFactor = Math.min(
-    windowDimentions.width / CONSTS.maxWidth,
-    (windowDimentions.height - CONSTS.headerHeight) / CONSTS.maxHeight,
-    1
-  );
-
-  // if state has changed save to localStorage
-  useEffect(() => {
-    localStorage.setItem("solitaireGameState", JSON.stringify(state));
-  }, [state]);
-
-  // if game over stop timer
-  useEffect(() => {
-    if (state.gameState === GAME_STATE.WON) {
-      stopTimer();
-    }
-    // eslint-disable-next-line
-  }, [state.gameState]);
-
-  // timer points
-  if (state.timerIntervalsElapsed < Math.floor(secondsElapsed / 10)) {
-    dispatcher(actions.addPoints(-2, secondsElapsed));
-  }
+  const scaleFactor = useScaleFactor();
 
   async function startNewGame() {
     stopTimer();
     resetTimer();
     setSelection(null);
     setPlayEnabled(false);
-    dispatcher(actions.stackCards());
+    dispatch(stackCards());
     await new Promise((result) => setTimeout(result, CONSTS.dealCardsDelay));
-    dispatcher(actions.dealCards());
+    dispatch(dealCards());
     setPlayEnabled(true);
-  }
-
-  function undo() {
-    if (state.undoIdx < 0) return;
-
-    switch (state.undoArray[state.undoIdx].type) {
-      case "move":
-        const { card, origin, destination } = state.undoArray[state.undoIdx];
-        dispatcher(actions.move(card, origin, destination, true));
-        break;
-      case "turnOverCard":
-        const { cardName } = state.undoArray[state.undoIdx];
-        dispatcher(actions.turnOverCard(cardName, true));
-        break;
-      case "deal":
-        const { actionTaken, numCardsDealt } = state.undoArray[state.undoIdx];
-        dispatcher(actions.unDeal(actionTaken, numCardsDealt));
-        break;
-      default:
-        console.log("invalid type in undo");
-    }
-
-    setSelection(null);
-    dispatcher(actions.decrementUndo());
   }
 
   function onSelect(e) {
@@ -91,7 +51,7 @@ function Solitaire() {
 
     // if deck is clicked deal cards
     if (state.cardMap[clickedItem] === "deck" || clickedItem === "deck") {
-      dispatcher(actions.deal());
+      dispatch(deal());
       setSelection(null);
       return;
     }
@@ -110,7 +70,7 @@ function Solitaire() {
           state[stackName].findIndex((i) => i === clickedItem) ===
           state[stackName].length - 1
         ) {
-          dispatcher(actions.turnOverCard(clickedItem));
+          dispatch(turnOverCard(clickedItem));
         }
         return;
       } else if (state.cardMap[clickedItem] === "discardPile") {
@@ -130,7 +90,7 @@ function Solitaire() {
       if (isPile(destination)) {
         if (state[destination].length === 0) {
           if (state.cards[card].rank === 13) {
-            dispatcher(actions.move(card, origin, destination));
+            dispatch(move(card, origin, destination));
           }
         } else if (
           state.cards[state[destination].at(-1)].rank ===
@@ -139,17 +99,17 @@ function Solitaire() {
             state.cards[card].color &&
           state.cards[state[destination].at(-1)].face === "up"
         ) {
-          dispatcher(actions.move(card, origin, destination));
+          dispatch(move(card, origin, destination));
         }
       } else if (
         isFoundation(destination) &&
         piles[destination].suit === state.cards[card].suit &&
         state.cards[card].rank === state[destination].length + 1
       ) {
-        dispatcher(actions.move(card, origin, destination));
+        dispatch(move(card, origin, destination));
       }
 
-      dispatcher(actions.checkGameState());
+      dispatch(checkGameState());
       setSelection(null);
     }
   }
@@ -158,13 +118,10 @@ function Solitaire() {
     <>
       <Header
         setPlayEnabled={setPlayEnabled}
-        undo={undo}
-        undoDisabled={state.undoIdx < 0}
-        state={state}
-        dispatcher={dispatcher}
         startNewGame={startNewGame}
         secondsElapsed={secondsElapsed}
         playEnabled={playEnabled}
+        setSelection={setSelection}
       />
       <div
         className="game"

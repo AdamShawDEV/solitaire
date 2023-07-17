@@ -2,16 +2,18 @@ import { useState } from "react";
 import Modal from "./Modal";
 import { CONSTS } from "../consts";
 import { settings } from "./hooks/gameState/actions";
-import useGameState from "./hooks/gameState/useGameState";
+import { useGameState } from "./hooks/gameState/GameStateContext";
 
-function SettingsModal({ handleClose, startNewGame, state, dispatcher }) {
+function SettingsModal({ handleClose, startNewGame }) {
+  const { state, dispatch } = useGameState();
+
   const [difficulty, setDifficulty] = useState(state.settings.difficulty);
   const [cardBack, setCardBack] = useState(state.settings.cardBack);
 
   function onFormSubmint(e) {
     e.preventDefault();
 
-    dispatcher(settings(difficulty, cardBack));
+    dispatch(settings(difficulty, cardBack));
 
     if (state.settings.difficulty !== difficulty) startNewGame();
 

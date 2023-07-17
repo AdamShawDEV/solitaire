@@ -6,9 +6,16 @@ import {
   IoSettingsOutline,
   IoSparkles,
 } from "react-icons/io5";
+import {
+  turnOverCard,
+  move,
+  unDeal,
+  decrementUndo,
+} from "./hooks/gameState/actions";
 import HeaderButton from "./HeaderButton";
 import NewGameModal from "./NewGameModal";
 import SettingsModal from "./SettingsModal";
+import { useGameState } from "./hooks/gameState/GameStateContext";
 
 const OPEN_MODAL = {
   NEW_GAME_MODAL: "NEW_GAME_MODAL",
@@ -16,16 +23,33 @@ const OPEN_MODAL = {
   NONE: "NONE",
 };
 
-function Header({
-  undo,
-  undoDisabled,
-  state,
-  dispatcher,
-  startNewGame,
-  secondsElapsed,
-  playEnabled,
-}) {
+function Header({ startNewGame, secondsElapsed, playEnabled, setSelection }) {
   const [openModal, setOpenModal] = useState(OPEN_MODAL.NONE);
+  const { state, dispatch } = useGameState();
+
+  function undo() {
+    if (state.undoIdx < 0) return;
+
+    switch (state.undoArray[state.undoIdx].type) {
+      case "move":
+        const { card, origin, destination } = state.undoArray[state.undoIdx];
+        dispatch(move(card, destination, origin, true));
+        break;
+      case "turnOverCard":
+        const { cardName } = state.undoArray[state.undoIdx];
+        dispatch(turnOverCard(cardName, true));
+        break;
+      case "deal":
+        const { actionTaken, numCardsDealt } = state.undoArray[state.undoIdx];
+        dispatch(unDeal(actionTaken, numCardsDealt));
+        break;
+      default:
+        console.log("invalid type in undo");
+    }
+
+    setSelection(null);
+    dispatch(decrementUndo());
+  }
 
   return (
     <>
@@ -39,7 +63,7 @@ function Header({
             <IoSparkles />
             new game
           </HeaderButton>
-          <HeaderButton onClick={undo} disabled={undoDisabled}>
+          <HeaderButton onClick={undo} disabled={state.undoIdx < 0}>
             <IoArrowUndoSharp />
             undo
           </HeaderButton>
@@ -55,8 +79,6 @@ function Header({
       {openModal === OPEN_MODAL.SETTINGS_MODAL ? (
         <SettingsModal
           handleClose={() => setOpenModal(OPEN_MODAL.NONE)}
-          state={state}
-          dispatcher={dispatcher}
           startNewGame={startNewGame}
         />
       ) : openModal === OPEN_MODAL.NEW_GAME_MODAL ? (

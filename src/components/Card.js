@@ -69,9 +69,6 @@ function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
         height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
         left: `${positionX}px`,
         top: `${positionY}px`,
-        backgroundColor: `${
-          state.cards[id].face === "down" ? "purple" : "red"
-        }`,
         backgroundImage: bgImage,
         backgroundSize: `100%`,
         borderRadius: `${10 * scaleFactor}px`,

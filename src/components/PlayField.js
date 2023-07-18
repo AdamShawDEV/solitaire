@@ -14,8 +14,8 @@ function PlayField({
   scaleFactor,
   selection,
   playEnabled,
-  isTimerRunning,
   startTimer,
+  isTimerRunning,
   setSelection,
 }) {
   const { state, dispatch } = useGameState();

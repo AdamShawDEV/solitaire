@@ -35,18 +35,16 @@ function Solitaire() {
   return (
     <>
       <Header
-        setPlayEnabled={setPlayEnabled}
         startNewGame={startNewGame}
         secondsElapsed={secondsElapsed}
-        playEnabled={playEnabled}
         setSelection={setSelection}
       />
       <PlayField
         scaleFactor={scaleFactor}
         selection={selection}
+        playEnabled={playEnabled}
         startTimer={startTimer}
         isTimerRunning={isTimerRunning}
-        playEnabled={playEnabled}
         setSelection={setSelection}
       />
       {state.gameState === GAME_STATE.WON && (

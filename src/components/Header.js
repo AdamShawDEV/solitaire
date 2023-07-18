@@ -23,7 +23,7 @@ const OPEN_MODAL = {
   NONE: "NONE",
 };
 
-function Header({ startNewGame, secondsElapsed, playEnabled, setSelection }) {
+function Header({ startNewGame, secondsElapsed, setSelection }) {
   const [openModal, setOpenModal] = useState(OPEN_MODAL.NONE);
   const { state, dispatch } = useGameState();
 

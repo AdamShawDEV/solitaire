@@ -1,33 +1,8 @@
-.gameWonModal {
-    text-align: center;
+.stateDisplay {
+  display: flex;
+  justify-content: space-around;
 }
 
-.gameWonModal h1 {
-    margin: 0;
-  }
-
-.gameWonModal button {
-    margin-top: .7rem;
-    padding: .7rem;
-    background-color: rgb(108, 135, 255);
-    border: none;
-    border-radius: .4rem;
-    font-weight: 700;
-  }
-  
-  .gameWonModal button:hover {
-    background-color: rgb(146, 166, 255);
-  }
-  
-  .gameWonModal button:active {
-    background-color: rgb(46, 84, 255);
-  }
-
-  .stateDisplay {
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .stateDisplay h2 {
-    margin-top: 0;
-  }
+.stateDisplay h2 {
+  margin-top: 0;
+}

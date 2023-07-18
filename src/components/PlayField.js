@@ -1,17 +1,8 @@
 import { useGameState } from "./hooks/gameState/GameStateContext";
 import PileBase from "./PileBase";
 import Card from "./Card";
+import { CONSTS, piles, isCard, isPile, isFoundation } from "../consts";
 import {
-  CONSTS,
-  GAME_STATE,
-  piles,
-  isCard,
-  isPile,
-  isFoundation,
-} from "../consts";
-import {
-  dealCards,
-  stackCards,
   turnOverCard,
   move,
   deal,
@@ -30,6 +21,7 @@ function PlayField({
   const { state, dispatch } = useGameState();
 
   function onSelect(e) {
+    console.log(playEnabled);
     if (!playEnabled) return;
     const clickedItem = e.target.id;
 

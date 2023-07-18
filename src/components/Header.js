@@ -56,10 +56,7 @@ function Header({ startNewGame, secondsElapsed, playEnabled, setSelection }) {
       <header className={styles.header}>
         <div>
           <span className={styles.title}>Solitaire</span>
-          <HeaderButton
-            onClick={() => setOpenModal(OPEN_MODAL.NEW_GAME_MODAL)}
-            playEnabled={playEnabled}
-          >
+          <HeaderButton onClick={() => setOpenModal(OPEN_MODAL.NEW_GAME_MODAL)}>
             <IoSparkles />
             new game
           </HeaderButton>

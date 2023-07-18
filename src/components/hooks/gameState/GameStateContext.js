@@ -12,14 +12,10 @@ function GameStateProvider({ children }) {
     gameStateInit
   );
 
-  console.log(state);
-
-  // // if state has changed save to localStorage
-  // useEffect(() => {
-  //   localStorage.setItem("solitaireGameState", JSON.stringify(state));
-  // }, [state]);
-
-  // const value = { state, dispatch };
+  // if state has changed save to localStorage
+  useEffect(() => {
+    localStorage.setItem("solitaireGameState", JSON.stringify(state));
+  }, [state]);
 
   return (
     <GameStateContext.Provider value={{ state, dispatch }}>

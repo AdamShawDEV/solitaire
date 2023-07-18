@@ -1,7 +1,8 @@
+import styles from "./modules/GameWonModal.module.css";
 import Modal from "./Modal";
 import { useGameState } from "./hooks/gameState/GameStateContext";
 
-function GameWonModal() {
+function GameWonModal({ startNewGame }) {
   const { state } = useGameState();
 
   return (

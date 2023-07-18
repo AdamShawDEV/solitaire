@@ -1,0 +1,8 @@
+.stateDisplay {
+  display: flex;
+  justify-content: space-around;
+}
+
+.stateDisplay h2 {
+  margin-top: 0;
+}

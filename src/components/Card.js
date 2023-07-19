@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import styles from "./modules/Card.module.css";
 import { CONSTS, piles, isPile } from "../consts";
+import CardImage from "./CardImage";
 
 function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
   const [zIndex, setZIndex] = useState(idx);
+
+  const handleClick = () => onSelect(id);
 
   useEffect(() => {
     setZIndex(idx + CONSTS.numCards); // card is moving bring forward to prevent cliping
@@ -60,21 +63,25 @@ function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
   }
 
   return (
-    <div
+    <button
       id={id}
       className={`${styles.card} ${selected ? styles.selectedCard : ""}`}
-      onClick={(e) => onSelect(e)}
+      onClick={handleClick}
       style={{
         width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
         height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
         left: `${positionX}px`,
         top: `${positionY}px`,
-        backgroundImage: bgImage,
-        backgroundSize: `100%`,
         borderRadius: `${10 * scaleFactor}px`,
         zIndex,
       }}
-    ></div>
+    >
+      <CardImage
+        id={
+          state.cards[id].face === "up" ? id : `${state.settings.cardBack}-back`
+        }
+      />
+    </button>
   );
 }
 

@@ -20,10 +20,10 @@ function PlayField({
 }) {
   const { state, dispatch } = useGameState();
 
-  function onSelect(e) {
+  function onSelect(clickedItem) {
     console.log(playEnabled);
     if (!playEnabled) return;
-    const clickedItem = e.target.id;
+    // const clickedItem = e.target.id;
 
     if (!isTimerRunning) startTimer();
 

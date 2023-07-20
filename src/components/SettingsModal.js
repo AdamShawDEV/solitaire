@@ -24,7 +24,7 @@ function SettingsModal({ handleClose, startNewGame }) {
     <Modal>
       <div>
         {/* className={styles.modal}> */}
-        <h1>Settings</h1>
+        <h2>Settings</h2>
         <form onSubmit={(e) => onFormSubmint(e)}>
           <label>Difficulty: </label>
           <select

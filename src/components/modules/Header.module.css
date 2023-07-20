@@ -21,15 +21,10 @@
 }
 
 .settingBtn {
-  font-size: 30px;
-}
-
-.settingBtn:hover {
-  color: #fff;
-}
-
-.settingBtn:active {
-  color: #acacac;
+  border: none;
+  padding: 0;
+  background: none;
+  height: 30px;
 }
 
 .modal {

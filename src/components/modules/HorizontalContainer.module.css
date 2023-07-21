@@ -1,0 +1,4 @@
+.horizontalContainer {
+  display: flex;
+  gap: 0.4rem;
+}

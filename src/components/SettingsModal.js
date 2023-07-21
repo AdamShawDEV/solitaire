@@ -3,6 +3,10 @@ import Modal from "./Modal";
 import { CONSTS } from "../consts";
 import { settings } from "./hooks/gameState/actions";
 import { useGameState } from "./hooks/gameState/GameStateContext";
+import Form from "./Form";
+import SelectInput from "./SelectInput";
+import HorizontalContainer from "./HorizontalContainer";
+import Button from "./Button";
 
 function SettingsModal({ handleClose, startNewGame }) {
   const { state, dispatch } = useGameState();
@@ -25,17 +29,17 @@ function SettingsModal({ handleClose, startNewGame }) {
       <div>
         {/* className={styles.modal}> */}
         <h2>Settings</h2>
-        <form onSubmit={(e) => onFormSubmint(e)}>
+        <Form onSubmit={(e) => onFormSubmint(e)}>
           <label>Difficulty: </label>
-          <select
+          <SelectInput
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
           >
             <option value="easy">easy: draw 1</option>
             <option value="hard">hard: draw 3</option>
-          </select>
+          </SelectInput>
           <label>Card Backs: </label>
-          <select
+          <SelectInput
             value={cardBack}
             onChange={(e) => setCardBack(e.target.value)}
           >
@@ -44,12 +48,12 @@ function SettingsModal({ handleClose, startNewGame }) {
                 {i}
               </option>
             ))}
-          </select>
-          <div>
-            <button>submit</button>
-            <button onClick={handleClose}>cancel</button>
-          </div>
-        </form>
+          </SelectInput>
+          <HorizontalContainer>
+            <Button onClick={handleClose}>cancel</Button>
+            <Button>submit</Button>
+          </HorizontalContainer>
+        </Form>
       </div>
     </Modal>
   );

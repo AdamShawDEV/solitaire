@@ -1,0 +1,25 @@
+.button {
+  min-width: 5rem;
+  background-color: #4b4bf9ff;
+  padding: 0.4rem;
+  border: none;
+  border-radius: 0.4rem;
+  color: #e9ecf4ff;
+  font-weight: 500;
+  font-size: 1.2rem;
+  box-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.5);
+}
+
+.button:hover {
+  background-color: #8080faff;
+  filter: grayscale(40%);
+}
+
+.button:active {
+  box-shadow: inset 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.5);
+  filter: grayscale(80%);
+}
+
+.button:disabled {
+  background-color: #c8c8feff !important;
+}

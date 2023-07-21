@@ -1,17 +1,7 @@
 import { useState } from "react";
 import styles from "./modules/Header.module.css";
 import TimerDisplay from "./TimerDisplay";
-import {
-  IoArrowUndoSharp,
-  IoSettingsOutline,
-  IoSparkles,
-} from "react-icons/io5";
-import {
-  turnOverCard,
-  move,
-  unDeal,
-  decrementUndo,
-} from "./hooks/gameState/actions";
+import { undo } from "./hooks/gameState/actions";
 import HeaderButton from "./HeaderButton";
 import NewGameModal from "./NewGameModal";
 import SettingsModal from "./SettingsModal";
@@ -29,28 +19,9 @@ function Header({ startNewGame, secondsElapsed, setSelection }) {
   const [settingsButtonHover, setSettingsButtonHover] = useState(false);
   const { state, dispatch } = useGameState();
 
-  function undo() {
-    if (state.undoIdx < 0) return;
-
-    switch (state.undoArray[state.undoIdx].type) {
-      case "move":
-        const { card, origin, destination } = state.undoArray[state.undoIdx];
-        dispatch(move(card, destination, origin, true));
-        break;
-      case "turnOverCard":
-        const { cardName } = state.undoArray[state.undoIdx];
-        dispatch(turnOverCard(cardName, true));
-        break;
-      case "deal":
-        const { actionTaken, numCardsDealt } = state.undoArray[state.undoIdx];
-        dispatch(unDeal(actionTaken, numCardsDealt));
-        break;
-      default:
-        console.log("invalid type in undo");
-    }
-
+  function handleUndoBtn() {
+    dispatch(undo());
     setSelection(null);
-    dispatch(decrementUndo());
   }
 
   return (
@@ -62,7 +33,7 @@ function Header({ startNewGame, secondsElapsed, setSelection }) {
             <Icon id="new" height="16" width="16" />
             new game
           </HeaderButton>
-          <HeaderButton onClick={undo} disabled={state.undoIdx < 0}>
+          <HeaderButton onClick={handleUndoBtn} disabled={state.undoIdx < 0}>
             <Icon id="undo" height="16" width="16" />
             undo
           </HeaderButton>

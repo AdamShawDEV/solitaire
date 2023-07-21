@@ -56,25 +56,24 @@ function turnOverCard(cardName, isUndo = false) {
   };
 }
 
-function unDeal(actionTaken, numCardsDealt) {
-  return {
-    type: types.UNDEAL,
-    actionTaken,
-    numCardsDealt,
-  };
-}
-
-function decrementUndo() {
-  return {
-    type: types.DECREMENT_UNDO,
-  };
-}
-
 function settings(difficulty, cardBack) {
   return {
     type: types.SETTINGS,
     difficulty,
     cardBack,
+  };
+}
+
+function undo() {
+  return {
+    type: types.UNDO,
+  };
+}
+
+function updateElapsedTime(elapsedTime) {
+  return {
+    type: types.UPDATE_ELAPSED_TIME,
+    elapsedTime,
   };
 }
 
@@ -87,7 +86,7 @@ export {
   move,
   deal,
   turnOverCard,
-  unDeal,
-  decrementUndo,
   settings,
+  undo,
+  updateElapsedTime,
 };

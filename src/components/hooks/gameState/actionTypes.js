@@ -7,5 +7,6 @@ export const MOVE = "MOVE";
 export const DEAL = "DEAL";
 export const TURN_OVER_CARD = "TURN_OVER_CARD";
 export const UNDEAL = "UNDEAL";
-export const DECREMENT_UNDO = "DECREMENT_UNDO";
 export const SETTINGS = "SETTINGS";
+export const UNDO = "UNDO";
+export const UPDATE_ELAPSED_TIME = "UPDATE_ELAPSED_TIME";

@@ -6,10 +6,26 @@ import {
   returnCardsToDeck,
   dealCards,
   reverseDeck,
+  move,
+  turnOverCard,
+  unDeal,
 } from "./gameStateUtils";
 
 function gameStateReducer(state, action) {
   switch (action.type) {
+    case types.UPDATE_ELAPSED_TIME: {
+      const { elapsedTime } = action;
+
+      const pointsToAdd =
+        state.timerIntervalsElapsed < Math.floor(elapsedTime / 10) ? -2 : 0;
+
+      return {
+        ...state,
+        points: state.points + pointsToAdd,
+        timerIntervalsElapsed: Math.floor(elapsedTime / 10),
+        elapsedTime,
+      };
+    }
     case types.ADD_POINTS:
       const { pointsToAdd, elapsedTime } = action;
 
@@ -47,56 +63,12 @@ function gameStateReducer(state, action) {
       return dealCards(state);
     case types.START_NEW_GAME:
       return createNewGameState(initialState, state);
-    case types.MOVE:
-      const { card: selectedCard, origin, destination, isUndo } = action;
+    case types.MOVE: {
+      const { card: selectedCard, origin, destination } = action;
 
-      const selectedCardIdx = state[origin].findIndex(
-        (card) => card === selectedCard
-      );
-      const cardsToMove = state[origin].slice(selectedCardIdx);
-
-      const fromArray = state[origin].filter(
-        (card) => !cardsToMove.includes(card)
-      );
-      const toArray = [...state[destination], ...cardsToMove];
-      let cardMap = { ...state.cardMap };
-
-      cardsToMove.forEach(
-        (card) => (cardMap = { ...cardMap, [card]: destination })
-      );
-
-      let points = state.points;
-      if (destination.slice(0, 4) === "foun") {
-        points = points + 10;
-      } else if (origin.slice(0, 4) === "foun") {
-        points = isUndo ? points - 10 : points - 15;
-      } else if (
-        destination.slice(0, 4) === "pile" &&
-        origin.slice(0, 4) === "pile"
-      ) {
-        points = isUndo ? points - 3 : points + 3;
-      } else if (
-        destination.slice(0, 4) === "pile" ||
-        origin.slice(0, 4) === "pile"
-      ) {
-        points = isUndo ? points - 5 : points + 5;
-      }
-
-      return {
-        ...state,
-        [origin]: fromArray,
-        [destination]: toArray,
-        cardMap,
-        numMoves: isUndo ? state.numMoves - 1 : state.numMoves + 1,
-        undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
-        undoArray: isUndo
-          ? state.undoArray
-          : [
-              ...state.undoArray,
-              { type: "move", origin, destination, card: selectedCard },
-            ],
-        points,
-      };
+      const newState = move(state, selectedCard, origin, destination, false);
+      return { ...state, ...newState };
+    }
     case types.DEAL:
       if (state.deck.length === 0) {
         // deck empty
@@ -180,94 +152,44 @@ function gameStateReducer(state, action) {
       };
     case types.TURN_OVER_CARD: {
       const { cardName, isUndo } = action;
-      const newFace = state.cards[cardName].face === "up" ? "down" : "up";
-      const newCards = {
-        ...state.cards,
-        [cardName]: { ...state.cards[cardName], face: newFace },
-      };
+      const changedState = turnOverCard(state, cardName, isUndo);
       return {
         ...state,
-        cards: newCards,
-        undoIdx: isUndo ? state.undoIdx : state.undoIdx + 1,
-        undoArray: isUndo
-          ? state.undoArray
-          : [...state.undoArray, { type: "turnOverCard", cardName }],
+        ...changedState,
       };
     }
-    case types.UNDEAL: {
-      const { actionTaken, numCardsDealt } = action;
-
-      if (actionTaken === "deckReverse") {
-        const discardPile = reverseDeck(state.deck);
-        let newCards = { ...state.cards };
-
-        // reverse all the cards in the discardPile
-        for (const card of discardPile) {
-          newCards = { ...newCards, [card]: { ...newCards[card], face: "up" } };
-        }
-
-        // update card map
-        let newCardMap = { ...state.cardMap };
-        discardPile.forEach((card) => (newCardMap[card] = "discardPile"));
-
-        // calculate points
-        let points = state.points;
-        const passesBeforeMinusPoints =
-          state.settings.difficulty === "easy" ? 1 : 4;
-        if (state.numDeckPasses >= passesBeforeMinusPoints) {
-          points = points + (state.settings.difficulty === "easy" ? 100 : 20);
-        }
-
-        return {
-          ...state,
-          numMoves: state.numMoves - 1,
-          cards: newCards,
-          cardMap: newCardMap,
-          deck: [],
-          discardPile,
-          numDeckPasses: state.numDeckPasses - 1,
-          points,
-        };
-      } else if (actionTaken === "cardsDelt") {
-        const discardPile = state.discardPile.slice(0, -numCardsDealt);
-        const returnedCards = state.discardPile.slice(-numCardsDealt);
-
-        let cards = { ...state.cards };
-        for (const card of returnedCards) {
-          cards = { ...cards, [card]: { ...cards[card], face: "down" } };
-        }
-
-        const deck = [...state.deck, ...reverseDeck(returnedCards)];
-
-        let cardMap = { ...state.cardMap };
-
-        returnedCards.forEach((card) => {
-          cardMap = { ...cardMap, [card]: "deck" };
-        });
-
-        return {
-          ...state,
-          cards,
-          numMoves: state.numMoves - 1,
-          cardMap,
-          deck,
-          discardPile,
-        };
-      }
-      break;
-    }
-    case types.DECREMENT_UNDO:
-      return {
-        ...state,
-        undoArray: state.undoArray.slice(0, -1),
-        undoIdx: state.undoIdx - 1,
-      };
     case types.SETTINGS:
       const { difficulty, cardBack } = action;
       return {
         ...state,
         settings: { ...state.settings, difficulty, cardBack },
       };
+    case types.UNDO: {
+      let changedState = {};
+      switch (state.undoArray[state.undoIdx].type) {
+        case "move":
+          const { card, origin, destination } = state.undoArray[state.undoIdx];
+          changedState = move(state, card, destination, origin, true);
+          break;
+        case "turnOverCard":
+          const { cardName } = state.undoArray[state.undoIdx];
+          changedState = turnOverCard(state, cardName, true);
+          break;
+        case "deal":
+          const { actionTaken, numCardsDealt } = state.undoArray[state.undoIdx];
+          changedState = unDeal(state, actionTaken, numCardsDealt);
+          break;
+        default:
+          console.log("invalid type in undo");
+      }
+
+      return {
+        ...state,
+        ...changedState,
+        undoArray: state.undoArray.slice(0, -1),
+        undoIdx: state.undoIdx - 1,
+      };
+    }
     default:
       console.log("invalid type in reducer");
   }

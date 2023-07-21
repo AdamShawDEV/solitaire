@@ -14,7 +14,7 @@ function Solitaire() {
   const [selection, setSelection] = useState(null);
   const [playEnabled, setPlayEnabled] = useState(true);
   const { secondsElapsed, resetTimer, startTimer, stopTimer, isTimerRunning } =
-    useTimer(state.elapsedTime);
+    useTimer();
   const scaleFactor = useScaleFactor();
 
   function startNewGame() {

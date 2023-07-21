@@ -1,35 +1,31 @@
 import { useEffect, useState } from "react";
 import { useGameState } from "./gameState/GameStateContext";
 import { GAME_STATE } from "../../consts";
-import { addPoints } from "./gameState/actions";
+import { updateElapsedTime } from "./gameState/actions";
 
-function useTimer(elapsedTime) {
-  const [secondsElapsed, setSecondsElapsed] = useState(elapsedTime);
+function useTimer() {
+  const { state, dispatch /*isTimmerRunning,  */ } = useGameState();
   const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const { gameState, timerIntervalsElapsed, dispatch } = useGameState();
+  const [secondsElapsed, setSecondsElapsed] = useState(state.elapsedTime);
 
   useEffect(() => {
     if (isTimerRunning) {
       const timerId = setTimeout(() => {
+        dispatch(updateElapsedTime(secondsElapsed + 1));
         setSecondsElapsed((curr) => curr + 1);
       }, 1000);
 
       return () => clearTimeout(timerId);
     }
-  }, [secondsElapsed, isTimerRunning]);
+  }, [secondsElapsed, isTimerRunning, dispatch]);
 
   // if game over stop timer
   useEffect(() => {
-    if (gameState === GAME_STATE.WON) {
+    if (state.stategameState === GAME_STATE.WON) {
       stopTimer();
     }
     // eslint-disable-next-line
-  }, [gameState]);
-
-  // timer points
-  if (timerIntervalsElapsed < Math.floor(secondsElapsed / 10)) {
-    dispatch(addPoints(-2, secondsElapsed));
-  }
+  }, [state.gameState]);
 
   function resetTimer() {
     setSecondsElapsed(0);

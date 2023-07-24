@@ -4,7 +4,7 @@ import { GAME_STATE } from "../../consts";
 import { updateElapsedTime } from "./gameState/actions";
 
 function useTimer() {
-  const { state, dispatch /*isTimmerRunning,  */ } = useGameState();
+  const { state, dispatch } = useGameState();
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [secondsElapsed, setSecondsElapsed] = useState(state.elapsedTime);
 

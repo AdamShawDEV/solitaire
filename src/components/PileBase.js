@@ -1,8 +1,9 @@
-import { CONSTS, piles, isFoundation, isPile } from "../consts";
+import { CONSTS, piles } from "../consts";
+import { isPile, isFoundation } from "./hooks/gameState/gameStateUtils";
 import CardImage from "./CardImage";
 import styles from "./modules/PileBase.module.css";
 
-function PileBase({ id, scaleFactor, onSelect }) {
+function PileBase({ id, scaleFactor, onSelect, handleDragEnter }) {
   const positionX =
     (CONSTS.spacer + piles[id].base.x * CONSTS.spacer) * scaleFactor;
   const positionY =
@@ -23,6 +24,8 @@ function PileBase({ id, scaleFactor, onSelect }) {
       id={id}
       className={styles.stack}
       onClick={handleClick}
+      onDragEnter={() => handleDragEnter(id)}
+      onDragOver={(e) => e.preventDefault()}
       style={{
         width: CONSTS.cardDimensions.x * scaleFactor,
         height: CONSTS.cardDimensions.y * scaleFactor,

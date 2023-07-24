@@ -1,4 +1,4 @@
-import { CONSTS, GAME_STATE } from "../../../consts";
+import { CONSTS, GAME_STATE, piles } from "../../../consts";
 import * as types from "./actionTypes";
 import initialState from "./initialState";
 import {
@@ -9,6 +9,9 @@ import {
   move,
   turnOverCard,
   unDeal,
+  isPile,
+  isFoundation,
+  checkIfGameOver,
 } from "./gameStateUtils";
 
 function gameStateReducer(state, action) {
@@ -35,28 +38,6 @@ function gameStateReducer(state, action) {
         timerIntervalsElapsed: Math.floor(elapsedTime / 10),
         elapsedTime,
       };
-    case types.CHECK_GAME_STATE:
-      const numCardsInFoundations =
-        state.foundationH.length +
-        state.foundationD.length +
-        state.foundationC.length +
-        state.foundationS.length;
-
-      if (numCardsInFoundations === CONSTS.numCards) {
-        const highScore =
-          state.points > state.statistics.highScore
-            ? state.points
-            : state.statistics.highScore;
-        const gameState = GAME_STATE.WON;
-
-        return {
-          ...state,
-          gameState,
-          statistics: { ...state.statistics, highScore },
-        };
-      } else {
-        return { ...state };
-      }
     case types.STACK_CARDS:
       return returnCardsToDeck(state);
     case types.DEAL_CARDS:
@@ -64,10 +45,42 @@ function gameStateReducer(state, action) {
     case types.START_NEW_GAME:
       return createNewGameState(initialState, state);
     case types.MOVE: {
-      const { card: selectedCard, origin, destination } = action;
+      const { card, origin, destination } = action;
 
-      const newState = move(state, selectedCard, origin, destination, false);
-      return { ...state, ...newState };
+      // check if is a legal move
+      if (
+        (isPile(destination) &&
+          ((state[destination].length === 0 && state.cards[card].rank === 13) ||
+            (state[destination].length !== 0 &&
+              state.cards[state[destination].at(-1)].rank ===
+                state.cards[card].rank + 1 &&
+              state.cards[state[destination].at(-1)].color !==
+                state.cards[card].color &&
+              state.cards[state[destination].at(-1)].face === "up"))) ||
+        (isFoundation(destination) &&
+          piles[destination].suit === state.cards[card].suit &&
+          state.cards[card].rank === state[destination].length + 1)
+      ) {
+        const newState = {
+          ...state,
+          ...move(state, card, origin, destination, false),
+        };
+        if (checkIfGameOver(newState)) {
+          const highScore =
+            state.points > state.statistics.highScore
+              ? state.points
+              : state.statistics.highScore;
+          const gameState = GAME_STATE.WON;
+
+          return {
+            ...newState,
+            gameState,
+            statistics: { ...state.statistics, highScore },
+          };
+        } else return newState;
+      }
+
+      return state;
     }
     case types.DEAL:
       if (state.deck.length === 0) {

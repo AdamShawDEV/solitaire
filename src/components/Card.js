@@ -1,9 +1,21 @@
 import { useState, useEffect } from "react";
 import styles from "./modules/Card.module.css";
-import { CONSTS, piles, isPile } from "../consts";
+import { CONSTS, piles } from "../consts";
+import { isPile } from "./hooks/gameState/gameStateUtils";
 import CardImage from "./CardImage";
 
-function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
+function Card({
+  id,
+  selected,
+  onSelect,
+  stack,
+  state,
+  scaleFactor,
+  idx,
+  handleDragStart,
+  handleDragEnter,
+  handleDragEnd,
+}) {
   const [zIndex, setZIndex] = useState(idx);
 
   const handleClick = () => onSelect(id);
@@ -21,11 +33,9 @@ function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
     };
   }, [stack, idx]);
 
-  const bgImage = `url(${
-    state.cards[id].face === "up"
-      ? `./images/${id}.svg`
-      : `./images/${state.settings.cardBack}-back.svg`
-  })`;
+  const isDraggable =
+    state.cards[id].face === "up" &&
+    (stack !== "discardPile" || state.discardPile.at(-1) === id);
 
   let positionY = 0;
   if (isPile(stack)) {
@@ -67,6 +77,11 @@ function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
       id={id}
       className={`${styles.card} ${selected ? styles.selectedCard : ""}`}
       onClick={handleClick}
+      draggable={isDraggable}
+      onDragStart={() => handleDragStart(id)}
+      onDragEnter={() => handleDragEnter(id)}
+      onDragEnd={handleDragEnd}
+      onDragOver={(e) => e.preventDefault()}
       style={{
         width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
         height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
@@ -74,6 +89,7 @@ function Card({ id, selected, onSelect, stack, state, scaleFactor, idx }) {
         top: `${positionY}px`,
         borderRadius: `${10 * scaleFactor}px`,
         zIndex,
+        cursor: isDraggable ? "grab" : "default",
       }}
     >
       <CardImage

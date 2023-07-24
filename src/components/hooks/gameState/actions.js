@@ -8,12 +8,6 @@ function addPoints(pointsToAdd, elapsedTime) {
   };
 }
 
-function checkGameState() {
-  return {
-    type: types.CHECK_GAME_STATE,
-  };
-}
-
 function stackCards() {
   return {
     type: types.STACK_CARDS,
@@ -79,7 +73,6 @@ function updateElapsedTime(elapsedTime) {
 
 export {
   addPoints,
-  checkGameState,
   stackCards,
   dealCards,
   startNewGame,

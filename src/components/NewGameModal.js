@@ -1,3 +1,5 @@
+import Button from "./Button";
+import HorizontalContainer from "./HorizontalContainer";
 import Modal from "./Modal";
 
 function NewGameModal({ handleClose, startNewGame }) {
@@ -11,10 +13,10 @@ function NewGameModal({ handleClose, startNewGame }) {
       <div>
         {/* className={styles.modal}> */}
         <h2>Start New Game?</h2>
-        <div>
-          <button onClick={handleYesButtonClick}>yes</button>
-          <button onClick={handleClose}>cancel</button>
-        </div>
+        <HorizontalContainer>
+          <Button onClick={handleYesButtonClick}>ok</Button>
+          <Button onClick={handleClose}>cancel</Button>
+        </HorizontalContainer>
       </div>
     </Modal>
   );

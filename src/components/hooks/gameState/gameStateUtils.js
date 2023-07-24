@@ -1,4 +1,5 @@
 import initialState from "./initialState";
+import { CONSTS } from "../../../consts";
 
 function gameStateInit(initialState) {
   let gameState = {};
@@ -233,6 +234,28 @@ function unDeal(state, actionTaken, numCardsDealt) {
   }
 }
 
+function isCard(name) {
+  return name[1] === "-";
+}
+
+function isPile(name) {
+  return name.slice(0, 4) === "pile";
+}
+
+function isFoundation(name) {
+  return name.slice(0, 4) === "foun";
+}
+
+function checkIfGameOver(state) {
+  const numCardsInFoundations =
+    state.foundationH.length +
+    state.foundationD.length +
+    state.foundationC.length +
+    state.foundationS.length;
+
+  return numCardsInFoundations === CONSTS.numCards;
+}
+
 export {
   createNewGameState,
   reverseDeck,
@@ -243,4 +266,8 @@ export {
   move,
   turnOverCard,
   unDeal,
+  isCard,
+  isPile,
+  isFoundation,
+  checkIfGameOver,
 };

@@ -1,5 +1,4 @@
 export const ADD_POINTS = "ADD_POINTS";
-export const CHECK_GAME_STATE = "CHECK_GAME_STATE";
 export const STACK_CARDS = "STACK_CARDS";
 export const DEAL_CARDS = "DEAL_CARDS";
 export const START_NEW_GAME = "START_NEW_GAME";

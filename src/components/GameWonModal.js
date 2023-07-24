@@ -1,6 +1,7 @@
 import styles from "./modules/GameWonModal.module.css";
 import Modal from "./Modal";
 import { useGameState } from "./hooks/gameState/GameStateContext";
+import Button from "./Button";
 
 function GameWonModal({ startNewGame }) {
   const { state } = useGameState();
@@ -13,7 +14,7 @@ function GameWonModal({ startNewGame }) {
         <h2>moves: {state.numMoves}</h2>
         <h2>games played: {state.statistics.gamesPlayed}</h2>
         <h2>highScore: {state.statistics.highScore}</h2>
-        <button onClick={startNewGame}>new game</button>
+        <Button onClick={startNewGame}>new game</Button>
       </div>
     </Modal>
   );

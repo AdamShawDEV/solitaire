@@ -39,23 +39,21 @@ function PlayField({
 
     // no card card is selected
     if (!selection && isCard(clickedItem)) {
-      if (state.cards[clickedItem].face === "down") {
-        const stackName = state.cardMap[clickedItem];
-        if (
-          state[stackName].findIndex((i) => i === clickedItem) ===
-          state[stackName].length - 1
-        ) {
-          dispatch(turnOverCard(clickedItem));
-        }
-        return;
-      } else if (state.cardMap[clickedItem] === "discardPile") {
+      const stackName = state.cardMap[clickedItem];
+      const card = state.cards[clickedItem];
+      if (stackName === "discardPile") {
         setSelection(state.discardPile.at(-1));
         return;
       }
-      setSelection(clickedItem);
+      if (card.face === "down" && state[stackName].at(-1) === clickedItem) {
+        // if card on top of stack
+        dispatch(turnOverCard(clickedItem));
+        return;
+      }
+      if (card.face === "up") setSelection(clickedItem);
       return;
     } else if (selection) {
-      // check if legal move
+      // move card legality is check inside the reducer
       const card = selection;
       const origin = state.cardMap[selection];
       const destination = isCard(clickedItem)
@@ -68,14 +66,13 @@ function PlayField({
     }
   }
 
+  // drag and drop handlers
   function handleDragStart(cardId) {
     dragItemRef.current = cardId;
-    console.log("darg start " + cardId);
   }
 
   function handleDragEnter(cardId) {
     dragOverItemRef.current = cardId;
-    console.log("drag enter " + cardId);
   }
 
   function handleDragEnd() {

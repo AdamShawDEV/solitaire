@@ -1,4 +1,4 @@
-import { CONSTS, GAME_STATE, piles } from "../../../consts";
+import { GAME_STATE, piles } from "../../../consts";
 import * as types from "./actionTypes";
 import initialState from "./initialState";
 import {

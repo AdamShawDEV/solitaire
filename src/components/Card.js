@@ -82,15 +82,13 @@ function Card({
       onDragEnter={() => handleDragEnter(id)}
       onDragEnd={handleDragEnd}
       onDragOver={(e) => e.preventDefault()}
-      style={{
-        width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
-        height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
-        left: `${positionX}px`,
-        top: `${positionY}px`,
-        borderRadius: `${10 * scaleFactor}px`,
-        zIndex,
-        cursor: isDraggable ? "grab" : "default",
-      }}
+      style={computedStyles(
+        scaleFactor,
+        isDraggable,
+        positionX,
+        positionY,
+        zIndex
+      )}
     >
       <CardImage
         id={
@@ -100,5 +98,21 @@ function Card({
     </button>
   );
 }
+
+const computedStyles = (
+  scaleFactor,
+  isDraggable,
+  positionX,
+  positionY,
+  zIndex
+) => ({
+  width: `${CONSTS.cardDimensions.x * scaleFactor}px`,
+  height: `${CONSTS.cardDimensions.y * scaleFactor}px`,
+  left: `${positionX}px`,
+  top: `${positionY}px`,
+  borderRadius: `${10 * scaleFactor}px`,
+  zIndex,
+  cursor: isDraggable ? "grab" : "default",
+});
 
 export default Card;
